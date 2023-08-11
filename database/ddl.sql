@@ -1,11 +1,10 @@
--- Active: 1689640455352@@127.0.0.1@5432@clinica_dental@public
+-- Active: 1691719131646@@127.0.0.1@5432@clinica_dental@public
 
 create database clinica_dental;
 
 drop table if EXISTS tbl_roles cascade;
 
-CREATE TABLE
-    tbl_roles (
+CREATE TABLE  tbl_roles (
         id SERIAL PRIMARY KEY,
         nombre VARCHAR(50) NOT NULL, 
         activo BOOLEAN DEFAULT true, 

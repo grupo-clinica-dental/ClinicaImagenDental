@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1", 
-    "produccion" : "nodemon index.js", 
-    "desarrollo" : "nodemon indexDevelop.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "desarrollo": "nodemon indexDevelop.js"
   },
   "repository": {
     "type": "git",
