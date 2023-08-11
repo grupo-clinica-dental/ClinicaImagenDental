@@ -1,7 +1,11 @@
 
+// importamos express
 const express = require('express');
+// creamos un nuevo router de express para exportarlo al final del archivo
 const app = express.Router();
+// importamos la conexion de la base de datos
 const db = require('../database/conn');
+// importamos el error para mostrar errores de consola
 const { error } = require('console');
 
 
