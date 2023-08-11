@@ -73,7 +73,7 @@ app.delete('/tipos_mensajes/:id', async (req, res) => {
         res.status(200).json({ message: 'Tipo de mensaje marcado como inactivo exitosamente' });
     } catch (err) {
         console.error({ ERROR: err, RUTA: `/tipos_mensajes/${id}`, METODO: 'DELETE' });
-        res.status(500).json({ message: 'Error al marcar el tipo de mensaje como inactivo' });
+        res.status(500).json({ message: 'Eror al marcar el tipo de mensaje como inactivo' });
     }
 });
 
