@@ -153,3 +153,5 @@ CREATE TABLE
         constraint fk_id_rol_permiso Foreign Key  (id_rol) REFERENCES tbl_roles(id), 
         constraint fk_id_ruta Foreign Key  (id_ruta) REFERENCES tbl_rutas(id)
     );
+
+    
