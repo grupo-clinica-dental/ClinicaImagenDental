@@ -7,12 +7,13 @@ drop table if EXISTS tbl_roles cascade;
 CREATE TABLE
     tbl_roles (
         id SERIAL PRIMARY KEY,
-        nombre VARCHAR(50) NOT NULL, 
-        activo BOOLEAN DEFAULT true, 
+        nombre VARCHAR(50) NOT NULL,
+        activo BOOLEAN DEFAULT true,
         fecha_borrado TIMESTAMP
     );
 
-drop table if EXISTS  tbl_usuarios cascade;
+drop table if EXISTS tbl_usuarios cascade;
+
 CREATE TABLE
     tbl_usuarios (
         id SERIAL PRIMARY KEY,
@@ -21,11 +22,11 @@ CREATE TABLE
         telefono VARCHAR(15),
         password VARCHAR(255) NOT NULL,
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        estado BOOLEAN DEFAULT TRUE, 
+        estado BOOLEAN DEFAULT TRUE,
         fecha_borra TIMESTAMP
     );
 
-drop table if EXISTS  tbl_tokens cascade;
+drop table if EXISTS tbl_tokens cascade;
 
 CREATE TABLE
     tbl_tokens (
@@ -36,23 +37,25 @@ CREATE TABLE
         fecha_expiracion TIMESTAMP NOT NULL
     );
 
-drop table if EXISTS  tbl_especialidades cascade;
+drop table if EXISTS tbl_especialidades cascade;
 
 CREATE TABLE
     tbl_especialidades (
         id SERIAL PRIMARY KEY,
         nombre VARCHAR(50) NOT NULL,
-        activo BOOLEAN DEFAULT true, 
+        activo BOOLEAN DEFAULT true,
         fecha_borrado TIMESTAMP
     );
 
-drop table if EXISTS  tbl_doctores cascade;
+drop table if EXISTS tbl_doctores cascade;
+
 CREATE TABLE
     tbl_doctores (
         id SERIAL PRIMARY KEY,
         usuario_id INTEGER REFERENCES tbl_usuarios(id),
-        estado BOOLEAN DEFAULT TRUE, 
-        fecha_borrado TIMESTAMP
+        estado BOOLEAN DEFAULT TRUE,
+        fecha_borrado TIMESTAMP,
+        color VARCHAR(7)
     );
 
 drop table if EXISTS tbl_doctor_especialidades;
@@ -61,7 +64,7 @@ CREATE TABLE
     tbl_doctor_especialidades (
         doctor_id INTEGER NOT NULL,
         especialidad_id INTEGER NOT NULL,
-        estado BOOLEAN DEFAULT TRUE, 
+        estado BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP,
         PRIMARY KEY (doctor_id, especialidad_id),
         FOREIGN KEY (doctor_id) REFERENCES tbl_doctores(id),
@@ -77,20 +80,22 @@ CREATE TABLE
         telefono VARCHAR(15) NOT NULL,
         email VARCHAR(100),
         fecha_nacimiento DATE,
-        estado BOOLEAN DEFAULT TRUE, 
+        estado BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP
     );
 
 drop table if EXISTS tbl_estados_cita cascade;
+
 CREATE TABLE
     tbl_estados_cita (
         id SERIAL PRIMARY KEY,
-        estado VARCHAR(50) NOT NULL, 
-        activo BOOLEAN DEFAULT TRUE, 
+        estado VARCHAR(50) NOT NULL,
+        activo BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP
     );
 
 drop table if EXISTS tbl_citas CASCADE;
+
 CREATE TABLE
     tbl_citas (
         id SERIAL PRIMARY KEY,
@@ -102,7 +107,7 @@ CREATE TABLE
         ubicacion VARCHAR(255),
         descripcion TEXT,
         notas TEXT,
-        estado BOOLEAN DEFAULT TRUE, 
+        estado BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP
     );
 
@@ -113,7 +118,7 @@ CREATE TABLE
         id SERIAL PRIMARY KEY,
         tipo VARCHAR(50) NOT NULL,
         mensaje_template TEXT NOT NULL,
-        estado BOOLEAN DEFAULT TRUE, 
+        estado BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP
     );
 
@@ -127,29 +132,29 @@ CREATE TABLE
         cita_id INTEGER REFERENCES tbl_citas(id),
         contenido TEXT NOT NULL,
         fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        estado BOOLEAN DEFAULT TRUE, 
+        estado BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP
     );
 
-    drop table if EXISTS tbl_rutas cascade;
-    create table tbl_rutas 
-    (
+drop table if EXISTS tbl_rutas cascade;
+
+create table
+    tbl_rutas (
         id serial PRIMARY key,
-        string_ruta varchar(300), 
-        activa bool DEFAULT true, 
+        string_ruta varchar(300),
+        activa bool DEFAULT true,
         fecha_borrado TIMESTAMP
     );
 
-    drop table if EXISTS tbl_permisos CASCADE;
+drop table if EXISTS tbl_permisos CASCADE;
 
-    create table tbl_permisos 
-    ( 
-
-        id serial PRIMARY key, 
-        id_ruta int, 
-        id_rol int, 
-        activa bool DEFAULT true, 
-        fecha_borrado TIMESTAMP, 
-        constraint fk_id_rol_permiso Foreign Key  (id_rol) REFERENCES tbl_roles(id), 
-        constraint fk_id_ruta Foreign Key  (id_ruta) REFERENCES tbl_rutas(id)
+create table
+    tbl_permisos (
+        id serial PRIMARY key,
+        id_ruta int,
+        id_rol int,
+        activa bool DEFAULT true,
+        fecha_borrado TIMESTAMP,
+        constraint fk_id_rol_permiso Foreign Key (id_rol) REFERENCES tbl_roles(id),
+        constraint fk_id_ruta Foreign Key (id_ruta) REFERENCES tbl_rutas(id)
     );
