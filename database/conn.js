@@ -1,5 +1,5 @@
 const pgp = require('pg-promise')();
-const cn = 'postgresql://postgres:D@ns3r190s@localhost:5432/clinica_dental';
+const cn = 'postgresql://postgres:27115@localhost:5432/clinica_dental';
 const db = pgp(cn);
 
 db.connect()

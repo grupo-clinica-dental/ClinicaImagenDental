@@ -1,4 +1,4 @@
--- Active: 1691546713125@@127.0.0.1@5432@clinica_dental@public
+-- Active: 1691707887526@@localhost@5432@clinica_dental
 
 create database clinica_dental;
 
@@ -158,3 +158,4 @@ create table
         constraint fk_id_rol_permiso Foreign Key (id_rol) REFERENCES tbl_roles(id),
         constraint fk_id_ruta Foreign Key (id_ruta) REFERENCES tbl_rutas(id)
     );
+    
