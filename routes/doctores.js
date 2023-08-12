@@ -73,6 +73,119 @@ app.post('', (req, res) => {
 
 });
 
+app.put('/:id', (req, res) => {
+
+
+    const parametros = [
+
+        req.body.fecha_borrado,
+        req.body.color,
+        req.params.id
+
+    ];
+
+    let sql = `  
+                    update tbl_doctores 
+                    set fecha_borrado = $1, color = $2
+                    where id = $3
+
+                `;
+
+    let mensajes = new Array();
+
+    let respuestaValidacion = {
+
+        exito: true,
+        mensaje: mensajes,
+        excepcion: "",
+        item_rol: ""
+
+    };
+
+    db.result(sql, parametros, r => r.rowCount)
+        .then(data => {
+
+            const objetoMod = {
+
+                id: req.params.id,
+                fecha_borrado: req.body.fecha_borrado,
+                color: req.body.color,
+                
+
+            }
+
+            respuestaValidacion.mensaje = "Operación Exitosa";
+            respuestaValidacion.item_rol = objetoMod;
+            res.json(respuestaValidacion);
+
+        })
+        .catch((error) => {
+
+            respuestaValidacion.exito = false;
+            respuestaValidacion.mensaje.push("Operación Erronea");
+            respuestaValidacion.excepcion = error.message;
+            res.status(500).json(error);
+
+        }
+        );
+
+});
+
+app.delete('/:id', (req, res) => {
+
+
+    const parametros = [
+
+        req.params.id
+
+    ];
+
+    let sql = `  
+                    update tbl_doctores 
+                    set estado = false
+                    where id = $1
+
+                `;
+
+    let mensajes = new Array();
+
+    let respuestaValidacion = {
+
+        exito: true,
+        mensaje: mensajes,
+        excepcion: "",
+        item_rol: ""
+
+    };
+
+    db.result(sql, parametros, r => r.rowCount)
+        .then(data => {
+
+            const objetoMod = {
+
+                id: req.params.id,
+                fecha_borrado: req.body.fecha_borrado,
+                color: req.body.color,
+                estado: false
+            }
+
+            respuestaValidacion.mensaje = "Operación Exitosa";
+            respuestaValidacion.item_rol = objetoMod;
+            res.json(respuestaValidacion);
+
+        })
+        .catch((error) => {
+
+            respuestaValidacion.exito = false;
+            respuestaValidacion.mensaje.push("Operación Erronea");
+            respuestaValidacion.excepcion = error.message;
+            res.status(500).json(error);
+
+        }
+        );
+
+});
+
 
 
 
