@@ -16,8 +16,15 @@ app.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Nombre, email y password son requeridos' });
     }
 
+    const isEmailTaken = await db.query('Select email from tbl_usuarios where email = $1', [email])
+
+
+    if(isEmailTaken.length > 0) {
+    return res.status(400).json({message: 'El correo electronico ya esta en uso.'})
+    }
+
     if(password !== secondPassword) {
-        return res.status(400).json({ message: 'Contraseña incorrecta' });
+        return res.status(400).json({ message: 'Contraseñas no coinciden' });
     }
   
     try {

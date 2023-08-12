@@ -1,13 +1,9 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const pgp = require('pg-promise')();
-const app = express();
-const port = process.env.PORT || 3000;
+const app = express.Router();
 
 // Configuración de pg-promise para conectar a la base de datos
-const db = pgp('postgres://username:Demacia2003localhost/clinica_dental');
+const db = require('../database/conn');
 
-app.use(bodyParser.json());
 
 // Ruta para obtener todas las rutas
 app.get('/rutas', async (req, res) => {
@@ -57,6 +53,5 @@ app.put('/rutas/:id', async (req, res) => {
     }
   });
   
-  app.listen(port, () => {
-    console.log(`Servidor iniciado en el puerto ${port}`);
-  });
+
+  module.exports = app;
