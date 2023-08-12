@@ -4,7 +4,6 @@ const db = require('../database/conn');
 
 
 
-// Get all active appointment states
 app.get('/estadosCita', async (req, res) => {
   try {
     const estadoCita = await db.manyOrNone('SELECT * FROM tbl_estados_cita WHERE activo = true');
@@ -15,7 +14,6 @@ app.get('/estadosCita', async (req, res) => {
   }
 });
 
-// Create a new appointment state
 app.post('/estadosCita', async (req, res) => {
   const { estado } = req.body;
   if (!estado) {
@@ -34,7 +32,7 @@ app.post('/estadosCita', async (req, res) => {
   }
 });
 
-// Update an appointment state
+
 app.put('/estadosCita/:id', async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
@@ -55,7 +53,7 @@ app.put('/estadosCita/:id', async (req, res) => {
   }
 });
 
-// Delete an appointment state (set activo to false)
+
 app.delete('/estadosCita/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -71,6 +69,6 @@ app.delete('/estadosCita/:id', async (req, res) => {
   }
 });
 
-// Start the server
+
 
   module.exports = app;
