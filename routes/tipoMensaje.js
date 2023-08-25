@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../database/conn');
+const db = require('../db/conn');
 const app = express.Router();
 
 app.post('/tipos_mensajes', async (req, res) => {

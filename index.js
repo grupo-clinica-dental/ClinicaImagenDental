@@ -40,19 +40,20 @@ app.use('/api/especialidades', especialidades);
 const estadoCita = require('./routes/estadoCita');
 app.use('/api/estadoCita', estadoCita);
 
-const doctoresEspecialidades = require('./routes/doctoresEspecialidades');
-app.use('/api/doctoresEspecialidades', doctoresEspecialidades);
+/*const doctoresEspecialidades = require('./routes/doctoresEspecialidades');
+app.use('/api/doctoresEspecialidades', doctoresEspecialidades);*/
 
 //David 
 
-const rutas = require('./routes/rutas');
-app.use('/api/rutas', rutas);
+/*const rutas = require('./routes/rutas');
+app.use('/api/rutas', rutas);*/
 
-const permisos = require('./routes/permisos');
-app.use('/api/permisos', permisos);
+/*const permisos = require('./routes/permisos');
+app.use('/api/permisos', permisos);*/
 
-const PORT = 4500
+const archivos = require('./routes/archivos');
+app.use('/api/archivos',archivos );
 
-app.listen((PORT) => {
-    console.log(`Aplicacion corriendo en: http://localhost:${PORT}/api`)
-});
+
+
+app.listen(3000);

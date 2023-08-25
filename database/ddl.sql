@@ -1,4 +1,4 @@
--- Active: 1691707887526@@localhost@5432@clinica_dental
+-- Active: 1689640455352@@127.0.0.1@5432@clinica_dental
 
 create database clinica_dental;
 
@@ -159,3 +159,19 @@ create table
         constraint fk_id_ruta Foreign Key (id_ruta) REFERENCES tbl_rutas(id)
     );
     
+
+create table tbl_archivos
+( 
+    id serial PRIMARY key,
+    nombre_archivo varchar(200), 
+    mime_type varchar(200),
+    archivo bytea
+);
+
+
+
+select  a.nombre_archivo, 
+        a.mime_type, 
+        encode(a.archivo, 'base64')  as archivo 
+from    tbl_archivos a 
+where   a.id =  '8'
