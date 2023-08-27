@@ -1,74 +1,98 @@
 const express = require('express');
 const app = express.Router();
-const db = require('../db/conn');
+const db = require("../database/conn");
 
 
 
-app.get('/estadosCita', async (req, res) => {
+
+
+  // OBTENER TODOS LOS ESTADOS DE LAS CITAS
+  app.get('/', async (req, res) => {
+    try {
+
+      const estadoCita = await db.manyOrNone('SELECT * FROM tbl_estados_cita');
+  
+      res.status(200).json(estadoCita);
+    } catch (err) {
+
+      console.error({ERROR: err, RUTA: '/estadoCita', METODO: 'GET'});
+      
+      res.status(500).json({message: 'Error al obtener los estadoCita'});
+    }
+  });
+
+
+// INGRESAR NUEVO estadoCita
+app.post("/", async (req, res) => {
+  const { estado, activo, fecha_borrado } = req.body;
+
   try {
-    const estadoCita = await db.manyOrNone('SELECT * FROM tbl_estados_cita WHERE activo = true');
-    res.status(200).json(estadoCita);
-  } catch (err) {
-    console.error({ ERROR: err, RUTA: '/estadosCita', METODO: 'GET' });
-    res.status(500).json({ message: 'Error al obtener los estado_cita' });
-  }
-});
-
-app.post('/estadosCita', async (req, res) => {
-  const { estado } = req.body;
-  if (!estado) {
-    return res.status(400).json({ message: 'El estado es requerido' });
-  }
-
-  try {
-    const newEstadoCita = await db.one(
-      'INSERT INTO tbl_estados_cita (estado) VALUES ($1) RETURNING *',
-      estado
+    await db.none(
+      "INSERT INTO  tbl_estados_cita (estado, activo, fecha_borrado) VALUES ($1, $2, $3)",
+      [ estado, activo, fecha_borrado]
     );
-    res.status(201).json(newEstadoCita);
+
+    res
+      .status(201)
+      .json({ message: "estadoCita creado exitosamente" });
   } catch (err) {
-    console.error({ ERROR: err, RUTA: '/estadosCita', METODO: 'POST' });
-    res.status(500).json({ message: 'Error al crear el estado_cita' });
+    console.error({ err, RUTA: "/estadoCita", METODP: "POST" });
+
+    res
+      .status(500)
+      .json({ message: "Error al crear estadoCita" });
   }
 });
 
-
-app.put('/estadosCita/:id', async (req, res) => {
+// ACTUALIZAR estadoCita
+app.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { estado } = req.body;
-
-  if (!estado) {
-    return res.status(400).json({ message: 'El estado es requerido' });
-  }
+  const { estado} = req.body;
 
   try {
-    const updatedEstadoCita = await db.one(
-      'UPDATE tbl_estados_cita SET estado = $1 WHERE id = $2 RETURNING *',
+    await db.result(
+      "UPDATE  tbl_estados_cita SET estado= $1 WHERE id = $2 ",
       [estado, id]
     );
-    res.status(200).json(updatedEstadoCita);
+
+    res
+      .status(200)
+      .json({ message: "estadoCita actualizado exitosamente" });
   } catch (err) {
-    console.error({ ERROR: err, RUTA: `/estadosCita/${id}`, METODO: 'PUT' });
-    res.status(500).json({ message: 'Error al actualizar el estado_cita' });
+    console.error({
+      err,
+      RUTA: `/estadoCita/${id}`,
+      METODO: "PUT",
+    });
+
+    res
+      .status(500)
+      .json({ message: "Error al actualizar estadoCita" });
   }
 });
-
-
-app.delete('/estadosCita/:id', async (req, res) => {
-  const { id } = req.params;
-
+// Desactivar estadoCita
+app.delete("/:id", async (req, res) => {
+  const {id } = req.params;
   try {
-    const deletedEstadoCita = await db.one(
-      'UPDATE tbl_estados_cita SET activo = false WHERE id = $1 RETURNING *',
-      id
+    await db.result(
+      "UPDATE  tbl_estados_cita SET activo = false, fecha_borrado = CURRENT_TIMESTAMP WHERE id = $1",
+      [id]
     );
-    res.status(200).json(deletedEstadoCita);
+
+    res
+      .status(200)
+      .json({ message: "estadoCita inactivado con exito" });
   } catch (err) {
-    console.error({ ERROR: err, RUTA: `/estadosCita/${id}`, METODO: 'DELETE' });
-    res.status(500).json({ message: 'Error al eliminar el estado_cita' });
+    console.error({
+      err,
+      RUTA: `/estadoCita/${eid}`,
+      METODO: "DELETE",
+    });
+
+    res.status(500).json({
+      message: "Error al marcar estadoCita como inactivo",
+    });
   }
 });
-
-
 
   module.exports = app;

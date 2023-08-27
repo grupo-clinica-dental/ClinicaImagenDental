@@ -1,4 +1,4 @@
--- Active: 1689640455352@@127.0.0.1@5432@clinica_dental
+-- Active: 1692247948968@@127.0.0.1@5432@clinica_dental
 
 create database clinica_dental;
 
