@@ -34,11 +34,7 @@ app.post('', (req, res) => {
 
     ];
 
-    let sql = `  insert into tbl_doctores 
-                 (usuario_id, fecha_borrado, color)
-                 values 
-                 ($1, $2, $3) returning id
-                `;
+    let sql = `  SELECT * FROM fn_crear_doctores($1, $2, $3)`;
 
     let mensajes = new Array();
 

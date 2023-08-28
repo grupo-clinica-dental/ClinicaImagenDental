@@ -1,4 +1,4 @@
--- Active: 1692247948968@@127.0.0.1@5432@clinica_dental
+-- Active: 1691546713125@@127.0.0.1@5432@clinica_dental
 
 create database clinica_dental;
 
@@ -158,6 +158,8 @@ create table
         constraint fk_id_rol_permiso Foreign Key (id_rol) REFERENCES tbl_roles(id),
         constraint fk_id_ruta Foreign Key (id_ruta) REFERENCES tbl_rutas(id)
     );
+
+
     
 
 create table tbl_archivos
@@ -168,6 +170,22 @@ create table tbl_archivos
     archivo bytea
 );
 
+CREATE TABLE
+    tbl_log_errores(
+        id SERIAL NOT NULL,
+        descripcion character varying(1000),
+        proceso character varying(100),
+        fecha timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY(id)
+    );
+
+CREATE TABLE
+    tbl_log_de_acciones(
+        id SERIAL NOT NULL,
+        descripcion character varying(1000),
+        fecha timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY(id)
+    );    
 
 
 select  a.nombre_archivo, 
