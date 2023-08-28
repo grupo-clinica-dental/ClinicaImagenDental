@@ -121,31 +121,77 @@ app.put('/:id', (req, res) => {
 
 // Optener Todos los pacientes activos
 
-app.get('/', async (req, res) => {
-    try {
-        const pacientes = await db.manyOrNone('SELECT * FROM tbl_pacientes WHERE estado = true');
-        res.status(200).json(pacientes);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({message: 'Error al obtener los pacientes'});
-    }
+app.get('', (req, res) => {
+    let sql = `SELECT * FROM tbl_pacientes WHERE estado = true`;
+
+    db.any(sql)
+        .then(rows => {
+            const respuesta = {
+                exito: true,
+                mensaje: [],
+                excepcion: "",
+                item_paciente: {}
+            };
+
+            if (rows.length === 0 || rows[0].id === null) {
+                respuesta.exito = false;
+                respuesta.mensaje.push("Sin Datos");
+                res.status(404).json(respuesta);
+            } else {
+                respuesta.mensaje.push("Pacientes obtenidos exitosamente");
+                respuesta.item_paciente = rows;  
+                res.status(200).json(respuesta);
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).json({
+                exito: false,
+                mensaje: ["Error al obtener los pacientes"],
+                excepcion: error.message,
+                item_paciente: {}
+            });
+        });
 });
 
 //Optener Paciente por id que este activo 
 
-app.get('/:id', async (req, res) => {
+app.get('/:id', (req, res) => {
     const { id } = req.params;
-    try {
-        const paciente = await db.oneOrNone('SELECT * FROM tbl_pacientes WHERE id = $1 AND estado = true', [id]);
-        if (!paciente) {
-            return res.status(404).json({message: 'Paciente no encontrado'});
-        }
-        res.status(200).json(paciente);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({message: 'Error al obtener el paciente'});
-    }
+
+    let sql = 'SELECT * FROM tbl_pacientes WHERE id = $1 AND estado = true';
+
+    db.any(sql, [id])
+        .then(row => {
+            const respuesta = {
+                exito: true,
+                mensaje: [],
+                excepcion: "",
+                item_paciente: {}
+            };
+
+            if (row.length === 0) {
+                respuesta.exito = false;
+                respuesta.mensaje.push("Paciente no encontrado");
+                res.status(404).json(respuesta);
+            } else {
+                respuesta.mensaje.push("Paciente obtenido exitosamente");
+                respuesta.item_paciente = row[0];
+                res.status(200).json(respuesta);
+            }
+        })
+        .catch((error) => {
+            const respuestaError = {
+                exito: false,
+                mensaje: ["Error al obtener el paciente"],
+                excepcion: error.message,
+                item_paciente: {}
+            };
+            console.error(error);
+            res.status(500).json(respuestaError);
+        });
 });
+
 
 // Metodo Eliminar que solo desactiva a los pacientes
 app.delete('/:id', (req, res) => {
