@@ -148,18 +148,36 @@ app.get('/:id', async (req, res) => {
 });
 
 // Metodo Eliminar que solo desactiva a los pacientes
-app.delete('/:id', async (req, res) => {
+app.delete('/:id', (req, res) => {
     const { id } = req.params;
-    try {
-        const updated = await db.result('UPDATE tbl_pacientes SET estado = false, fecha_borrado = CURRENT_TIMESTAMP WHERE id = $1', [id]);
-        if (updated.rowCount === 0) {
-            return res.status(404).json({message: 'Paciente no encontrado'});
-        }
-        res.status(200).json({message: 'Paciente desactivado exitosamente'});
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({message: 'Error al desactivar el paciente'});
-    }
+
+    let sql = `SELECT * FROM fn_desactivar_paciente($1)`;
+
+    db.any(sql, [id])
+        .then(data => {
+            const respuesta = {
+                exito: data[0].exito,
+                mensaje: [data[0].mensaje],
+                excepcion: "",
+                item_paciente: {} 
+            };
+
+            if (!data[0].exito) {
+                res.status(404).json(respuesta);
+            } else {
+                res.status(200).json(respuesta);
+            }
+        })
+        .catch((error) => {
+            const respuestaError = {
+                exito: false,
+                mensaje: ["Error al desactivar el paciente"],
+                excepcion: error.message,
+                item_paciente: {} 
+            };
+            console.error(error);
+            res.status(500).json(respuestaError);
+        });
 });
 
 
