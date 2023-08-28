@@ -34,11 +34,7 @@ app.post('', (req, res) => {
 
     ];
 
-    let sql = `  insert into tbl_especialidades 
-                 (nombre, fecha_borrado)
-                 values 
-                 ($1, $2) returning id
-                `;
+    let sql = ` SELECT * FROM fn_crear_especialidades($1, $2) `;
 
     let mensajes = new Array();
 
@@ -83,12 +79,7 @@ app.put('/:id', (req, res) => {
 
     ];
 
-    let sql = `  
-                    update tbl_especialidades 
-                    set nombre = $1, fecha_borrado = $2 
-                    where id = $3
-
-                `;
+    let sql = ` SELECT * FROM fn_actualizar_especialidades($1, $2, $3) `;
 
     let mensajes = new Array();
 
