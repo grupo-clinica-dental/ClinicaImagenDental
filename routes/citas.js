@@ -199,38 +199,33 @@ app.get('/:id', (req, res) => {
 });
 
 // Cambiar cita a inactiva
-app.delete('/:id', (req, res) => {
+app.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
-    let sql = `SELECT * FROM fn_desactivar_articulo($1)`;
+    let respuestaValidacion = {
+        exito: true,
+        mensaje: [],
+        excepcion: ""
+    };
 
-    db.any(sql, [id])
-        .then(data => {
-            const respuesta = {
-                exito: data[0].exito,
-                mensaje: [data[0].mensaje],  
-                excepcion: "",
-                item_articulo: {}
-            };
+    let sql = `SELECT * FROM fn_desactivar_cita($1)`;
 
-            if (!data[0].exito) {
-                res.status(404).json(respuesta);
-            } else {
-                res.status(200).json(respuesta);
-            }
-        })
-        .catch((error) => {
-            const respuestaError = {
-                exito: false,
-                mensaje: ["Error al desactivar el artículo"],
-                excepcion: error.message,
-                item_articulo: {}
-            };
-            console.error(error);
-            res.status(500).json(respuestaError);
-        });
+    try {
+        const data = await db.any(sql, [id]);
+
+        if (!data[0].exito) {
+            return res.status(404).json({message: 'Cita no encontrada'});
+        }
+
+        respuestaValidacion.mensaje.push("Cita desactivada exitosamente");
+        res.status(200).json(respuestaValidacion);
+    } catch (error) {
+        respuestaValidacion.mensaje.push("Error al desactivar la cita");
+        respuestaValidacion.excepcion = error.message;
+        respuestaValidacion.exito = false;
+        res.status(500).json(respuestaValidacion);
+    }
 });
-
 
 
 module.exports = app;
