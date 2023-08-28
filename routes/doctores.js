@@ -131,12 +131,7 @@ app.delete('/:id', (req, res) => {
 
     ];
 
-    let sql = `  
-                    update tbl_doctores 
-                    set estado = false
-                    where id = $1
-
-                `;
+    let sql = ` SELECT * FROM fn_eliminar_doctores($1) `;
 
     let mensajes = new Array();
 
