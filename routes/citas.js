@@ -54,7 +54,7 @@ app.post('', async (req, res) => {
             fecha_hora: data[0].fecha_hora, 
             doctor_id: data[0].doctor_id,
             paciente_id: data[0].paciente_id,
-            // ... (otras propiedades)
+            
         };
         respuestaValidacion.mensaje.push("Cita creada exitosamente");
         respuestaValidacion.item_cita = objetoCreado;
