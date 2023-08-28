@@ -80,12 +80,7 @@ app.put('/:id', (req, res) => {
 
     ];
 
-    let sql = `  
-                    update tbl_doctores 
-                    set fecha_borrado = $1, color = $2
-                    where id = $3
-
-                `;
+    let sql = ` SELECT * FROM fn_actualizar_doctores ($1, $2, $3) `;
 
     let mensajes = new Array();
 
