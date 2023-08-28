@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION fn_desactivar_cita(p_id INT)
+CREATE OR REPLACE FUNCTION fn_actualizar_paciente(p_id INT, p_nombre VARCHAR, p_telefono VARCHAR, p_email VARCHAR, p_fecha_nacimiento DATE)
 RETURNS TABLE
 (
     exito BOOL,
@@ -11,23 +11,26 @@ DECLARE
     v_mensaje VARCHAR(1000);
 
 BEGIN
-    v_mensaje := 'Error al desactivar la cita con ID ' || p_id;
+    v_mensaje := 'Error en la actualización del paciente con ID ' || p_id;
 
-    UPDATE tbl_citas 
-    SET estado = false
+    UPDATE tbl_pacientes 
+    SET nombre = p_nombre, 
+        telefono = p_telefono, 
+        email = p_email, 
+        fecha_nacimiento = p_fecha_nacimiento
     WHERE id = p_id;
 
     v_mensaje := 'Error en la inserción del log';
 
     INSERT INTO tbl_log_de_acciones(descripcion)
-    VALUES ('Se desactivó la cita con ID ' || p_id);
+    VALUES ('Se actualizó el paciente con ID ' || p_id);
 
     v_mensaje := 'Operación Exitosa';
     RETURN QUERY SELECT v_exito, v_mensaje, p_id;
 
 EXCEPTION WHEN OTHERS THEN
     INSERT INTO tbl_log_errores(descripcion, proceso)
-    VALUES (v_mensaje || ' - ' || SQLERRM, 'fn_desactivar_cita');
+    VALUES (v_mensaje || ' - ' || SQLERRM, 'fn_actualizar_paciente');
 
     v_exito := false;
     v_mensaje := 'Operación Erronea - ' || SQLERRM;
@@ -35,4 +38,3 @@ EXCEPTION WHEN OTHERS THEN
     RETURN QUERY SELECT v_exito, v_mensaje, p_id;
 END;
 $$ LANGUAGE plpgsql;
-

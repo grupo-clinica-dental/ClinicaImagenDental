@@ -8,69 +8,116 @@ const correogmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
 // Insertar Pacientes
 
-app.post('', async (req, res) => {
+app.post('', (req, res) => {
     const { nombre, telefono, email, fecha_nacimiento } = req.body;
 
-// Esta parte son la validadciones 
+    let mensajes = [];
+    let bandera = true;
 
     if (!nombre || nombre.trim() === '') {
-        return res.status(400).json({message: 'Nombre es requerido y no puede estar en blanco'});
-    }
-    if (!email || email.trim() === '' || !correogmail.test(email)) {
-        return res.status(400).json({message: 'Email es requerido, no puede estar en blanco y debe tener un formato válido'});
-    }
-    if (!fecha_nacimiento || new Date(fecha_nacimiento) > new Date()) {
-        return res.status(400).json({message: 'Fecha de nacimiento es requerida y no puede estar en el futuro'});
+        bandera = false;
+        mensajes.push('Nombre es requerido y no puede estar en blanco');
     }
 
-    try {
-        // aqui insertamos un nuevo paciente en la base de datos
-        await db.none('INSERT INTO tbl_pacientes (nombre, telefono, email, fecha_nacimiento) VALUES ($1, $2, $3, $4)', [nombre, telefono, email, fecha_nacimiento]);
-    
-        // Si la inserción es exitosa, respondemos con un estado 201
-        res.status(201).json({message: 'Paciente creado '});
-    } catch (err) {
-        // En caso de error durante la inserción, mostramos el error 
-        console.error(err);
-        
-        // aqui responde con un codigo 500 si hubo un error interno en el servidor 
-        res.status(500).json({message: 'Error al crear el paciente'});
+    if (!email || email.trim() === '' || !correogmail.test(email)) {
+        bandera = false;
+        mensajes.push('Email es requerido, no puede estar en blanco y debe tener un formato válido');
     }
-    
+
+    if (!fecha_nacimiento || new Date(fecha_nacimiento) > new Date()) {
+        bandera = false;
+        mensajes.push('Fecha de nacimiento es requerida y no puede estar en el futuro');
+    }
+
+    let respuestaValidacion = {
+        exito: bandera,
+        mensaje: mensajes,
+        excepcion: "",
+        item_paciente: {}
+    };
+
+    if (!respuestaValidacion.exito) {
+        return res.status(400).json(respuestaValidacion);
+    }
+
+    let sql = `SELECT * FROM fn_crear_paciente($1, $2, $3, $4)`;
+
+    db.any(sql, [nombre, telefono, email, fecha_nacimiento])
+        .then(data => {
+            respuestaValidacion.mensaje.push("Paciente creado exitosamente");
+            respuestaValidacion.item_paciente = {
+                nombre: data[0].nombre, 
+                telefono: data[0].telefono,
+                email: data[0].email,
+                fecha_nacimiento: data[0].fecha_nacimiento
+            };
+            res.status(201).json(respuestaValidacion);
+        })
+        .catch((error) => {
+            respuestaValidacion.mensaje.push("Error al crear el paciente");
+            respuestaValidacion.excepcion = error.message;
+            respuestaValidacion.exito = false;
+            res.status(500).json(respuestaValidacion);
+        });
 });
+
 
 // Actualizar paciente solo si esta activo
 
-app.put('/:id', async (req, res) => {
+app.put('/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, telefono, email, fecha_nacimiento } = req.body;
 
-// Esta parte son la validadciones 
+    let mensajes = [];
+    let bandera = true;
 
     if (!nombre || nombre.trim() === '') {
-        return res.status(400).json({message: 'Nombre es requerido y no puede estar en blanco'});
-    }
-    if (!email || email.trim() === '' || !correogmail.test(email)) {
-        return res.status(400).json({message: 'Email es requerido, no puede estar en blanco y debe tener un formato válido'});
-    }
-    if (!fecha_nacimiento || new Date(fecha_nacimiento) > new Date()) {
-        return res.status(400).json({message: 'Fecha de nacimiento es requerida y no puede estar en el futuro'});
+        bandera = false;
+        mensajes.push('Nombre es requerido y no puede estar en blanco');
     }
 
-    try {
-         // aqui actualizamos un paciente en la base de datos
-        const updated = await db.result('UPDATE tbl_pacientes SET nombre = $1, telefono = $2, email = $3, fecha_nacimiento = $4 WHERE id = $5 AND estado = true', [nombre, telefono, email, fecha_nacimiento, id]);
-        
-        if (updated.rowCount === 0) {
-            return res.status(404).json({message: 'Paciente  Inactivo'});
-        }
-        
-        res.status(200).json({message: 'Paciente actualizado '});
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({message: 'Error al actualizar el paciente'});
+    if (!email || email.trim() === '' || !correogmail.test(email)) {
+        bandera = false;
+        mensajes.push('Email es requerido, no puede estar en blanco y debe tener un formato válido');
     }
+
+    if (!fecha_nacimiento || new Date(fecha_nacimiento) > new Date()) {
+        bandera = false;
+        mensajes.push('Fecha de nacimiento es requerida y no puede estar en el futuro');
+    }
+
+    let respuestaValidacion = {
+        exito: bandera,
+        mensaje: mensajes,
+        excepcion: "",
+        item_paciente: {}
+    };
+
+    if (!respuestaValidacion.exito) {
+        return res.status(400).json(respuestaValidacion);
+    }
+
+    let sql = `SELECT * FROM fn_actualizar_paciente($1, $2, $3, $4, $5)`;
+
+    db.any(sql, [id, nombre, telefono, email, fecha_nacimiento])
+        .then(data => {
+            if (!data[0].exito) {
+                respuestaValidacion.exito = false;
+                respuestaValidacion.mensaje.push('Paciente Inactivo');
+                return res.status(404).json(respuestaValidacion);
+            }
+            
+            respuestaValidacion.mensaje.push("Paciente actualizado exitosamente");
+            res.status(200).json(respuestaValidacion);
+        })
+        .catch((error) => {
+            respuestaValidacion.mensaje.push("Error al actualizar el paciente");
+            respuestaValidacion.excepcion = error.message;
+            respuestaValidacion.exito = false;
+            res.status(500).json(respuestaValidacion);
+        });
 });
+
 
 // Optener Todos los pacientes activos
 
