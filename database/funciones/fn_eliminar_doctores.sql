@@ -21,7 +21,7 @@ BEGIN
     VALUES ('Se actualizó el usuario ' || p_id);
 
     v_mensaje := 'Operación Exitosa';
-    RETURN QUERY SELECT v_exito, v_mensaje, p_id::varchar;
+    RETURN QUERY SELECT v_exito, v_mensaje, p_id;
 
 EXCEPTION
     WHEN OTHERS THEN
@@ -32,7 +32,7 @@ EXCEPTION
     v_exito := false;
     v_mensaje := 'Operación Erronea - ' || SQLERRM;
 
-    RETURN QUERY SELECT v_exito, v_mensaje, p_id::varchar;
+    RETURN QUERY SELECT v_exito, v_mensaje, p_id;
 
 END;
 $$ LANGUAGE plpgsql;
