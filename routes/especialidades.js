@@ -34,20 +34,24 @@ app.post('', (req, res) => {
 
     ];
 
-    let sql = ` SELECT * FROM fn_crear_especialidades($1, $2) `;
+    
 
     let mensajes = new Array();
+    let bandera = true;
 
     let respuestaValidacion = {
 
-        exito: true,
+        exito: bandera,
         mensaje: mensajes,
         excepcion: "",
         item_rol: ""
 
     };
-
-    db.one(sql, parametros, event => event.id)
+    if (respuestaValidacion === false) {
+        res.status(500).json(respuestaValidacion);
+    } else {
+        let sql = ` SELECT * FROM fn_crear_especialidades($1, $2) `;
+        db.one(sql, parametros, event => event.id)
         .then(data => {
 
             const objetoCreado = {
@@ -57,14 +61,21 @@ app.post('', (req, res) => {
                 fecha_borrado: req.body.fecha_borrado
 
             }
-
+            respuestaValidacion.mensaje.push("Operación Exitosa");
+            respuestaValidacion.item_rol = objetoCreado;
             res.json(objetoCreado);
 
         })
         .catch((error) => {
+            respuestaValidacion.mensaje.push("Operación Erronea");
+            respuestaValidacion.excepcion = error.message;
+            respuestaValidacion.exito = false;
             res.status(500).json(error);
         }
         );
+    }
+
+   
 
 });
 
