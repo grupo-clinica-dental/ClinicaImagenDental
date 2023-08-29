@@ -39,7 +39,7 @@ EXCEPTION when OTHERS then
     insert into tbl_log_errores
     ( descripcion, proceso)
     values 
-    (v_mensaje ||' - '|| SQLERRM , 'fn_actualizar_clientev2'  );
+    (v_mensaje ||' - '|| SQLERRM , 'fn_actualizar_especialidades'  );
 
     v_exito := false; 
     v_mensaje := 'Operación Erronea - '||SQLERRM;
