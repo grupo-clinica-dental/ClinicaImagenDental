@@ -1,57 +1,127 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const pgp = require('pg-promise')();
-const app = express();
-const port = process.env.PORT || 3001;
+const app = express.Router();
+const db = require('../db/conn');
 
-const db = pgp('postgres://username:password@localhost/dbname');
+app.post('/', (req, res) => {
 
-app.use(bodyParser.json());
+    const parametros = [
+        req.body.id_ruta,
+        req.body.id_rol,
+        req.body.activa
+    ];
 
-// Ruta para obtener todas las rutas
-app.get('/api/permisos', async (req, res) => {
-  try {
-    const permisos = await db.any('SELECT * FROM tbl_permisos');
-    res.json(permisos);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener permisos' });
-  }
+    let sql = `SELECT * FROM fn_crear_permiso($1, $2, $3);`;
+
+    db.any(sql, parametros)
+        .then(data => {
+            const respuesta = data[0];
+
+            if (respuesta.exito) {
+                res.json({
+                    exito: true,
+                    mensaje: respuesta.mensaje,
+                    id_registro: respuesta.id_registro
+                });
+            } else {
+                registrarError(respuesta.mensaje);
+                res.status(500).json({
+                    exito: false,
+                    mensaje: respuesta.mensaje
+                });
+            }
+        })
+        .catch((error) => {
+            registrarError("Error al conectar con la base de datos: " + error.message);
+            res.status(500).json({
+                exito: false,
+                mensaje: "Error al conectar con la base de datos",
+                error: error.message
+            });
+        });
 });
 
-// Ruta para crear un nuevo permiso
-app.post('/api/permisos', async (req, res) => {
-  const { id_ruta, id_rol } = req.body;
-  try {
-    await db.none('INSERT INTO tbl_permisos(id_ruta, id_rol) VALUES($1, $2)', [id_ruta, id_rol]);
-    res.json({ message: 'Permiso creado exitosamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al crear permiso' });
-  }
+app.put('/', (req, res) => {
+
+    const parametros = [
+        req.body.id_permiso,
+        req.body.id_ruta,
+        req.body.id_rol,
+        req.body.activa
+    ];
+
+    const sql = `SELECT * FROM fn_actualizar_permiso($1, $2, $3, $4)`;
+
+    db.any(sql, parametros)
+        .then(data => {
+            const respuesta = {
+                exito: data[0].exito,
+                mensaje: data[0].mensaje,
+                id_registro: data[0].id_registro
+            };
+            res.json(respuesta);
+        })
+        .catch(error => {
+            registrarError("Error al actualizar el permiso: " + error.message);
+            res.status(500).json({
+                exito: false,
+                mensaje: 'Error al actualizar el permiso',
+                error: error.message
+            });
+        });
 });
 
-// Ruta para actualizar un permiso
-app.put('/api/permisos/:id', async (req, res) => {
-  const id = req.params.id;
-  const { id_ruta, id_rol } = req.body;
-  try {
-    await db.none('UPDATE tbl_permisos SET id_ruta=$1, id_rol=$2 WHERE id=$3', [id_ruta, id_rol, id]);
-    res.json({ message: 'Permiso actualizado exitosamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar permiso' });
-  }
+app.delete('/:id', (req, res) => {
+    const idPermiso = req.params.id;
+
+    const sql = `SELECT * FROM fn_eliminar_permiso($1)`;
+
+    db.any(sql, idPermiso)
+        .then(data => {
+            const respuesta = {
+                exito: data[0].exito,
+                mensaje: data[0].mensaje
+            };
+            res.json(respuesta);
+        })
+        .catch(error => {
+            registrarError("Error al eliminar el permiso: " + error.message);
+            res.status(500).json({
+                exito: false,
+                mensaje: 'Error al eliminar el permiso',
+                error: error.message
+            });
+        });
 });
 
-// Ruta para eliminar un permiso
-app.delete('/api/permisos/:id', async (req, res) => {
-  const id = req.params.id;
-  try {
-    await db.none('DELETE FROM tbl_permisos WHERE id=$1', [id]);
-    res.json({ message: 'Permiso eliminado exitosamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar permiso' });
-  }
+app.get('/', (req, res) => {
+
+    const sql = 'SELECT * FROM tbl_permisos WHERE activa = true';
+
+    db.any(sql)
+        .then(data => {
+            res.json({
+                exito: true,
+                mensaje: 'Permisos activos obtenidos exitosamente.',
+                permisos: data
+            });
+        })
+        .catch(error => {
+            registrarError("Error al obtener los permisos activos: " + error.message);
+            res.status(500).json({
+                exito: false,
+                mensaje: 'Error al obtener los permisos activos.',
+                error: error.message
+            });
+        });
+
 });
 
-app.listen(port, () => {
-  console.log(`Servidor iniciado en el puerto ${port}`);
-});
+function registrarError(mensaje) {
+    const sql = `INSERT INTO tbl_log_errores (descripcion, proceso) VALUES ($1, 'API')`;
+    db.none(sql, mensaje)
+        .catch(error => {
+            console.error("Error al registrar el error en el log: " + error.message);
+        });
+}
+
+module.exports = app;
