@@ -129,12 +129,7 @@ app.delete('/:id', (req, res) => {
 
     ];
 
-    let sql = `  
-                    update tbl_especialidades 
-                    set activo = false
-                    where id = $1
-
-                `;
+    let sql = ` SELECT * FROM fn_eliminar_especialidades($1) `;
 
     let mensajes = new Array();
 
