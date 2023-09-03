@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express.Router();
-const db = require('../db/conn');
+const db = require ('../db/conn');
 
 // Insertar citas 
 
