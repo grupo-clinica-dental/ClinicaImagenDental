@@ -30,7 +30,7 @@ app.post('', (req, res) => {
     const parametros = [
 
         req.body.nombre,
-        req.body.fecha_borrado
+        
 
     ];
 
@@ -57,8 +57,8 @@ app.post('', (req, res) => {
             const objetoCreado = {
 
                 id: data,
-                nombre: req.body.nombre,
-                fecha_borrado: req.body.fecha_borrado
+                nombre: req.body.nombre
+                
 
             }
             respuestaValidacion.mensaje.push("Operación Exitosa");
@@ -85,7 +85,6 @@ app.put('/:id', (req, res) => {
     const parametros = [
 
         req.body.nombre,
-        req.body.fecha_borrado,
         req.params.id
 
     ];
@@ -110,7 +109,7 @@ app.put('/:id', (req, res) => {
 
                 id: req.params.id,
                 nombre: req.body.nombre,
-                fecha_borrado:req.body.fecha_borrado,
+                
 
             }
 
