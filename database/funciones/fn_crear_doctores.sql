@@ -1,3 +1,4 @@
+-- Active: 1691546713125@@127.0.0.1@5432@clinica_dental@public
 CREATE OR REPLACE FUNCTION fn_crear_doctores(p_usuario_id int, p_fecha_borrado TIMESTAMP, p_color varchar) 
 RETURNS TABLE (
     exito bool,
