@@ -1,4 +1,4 @@
--- Active: 1690920567382@@localhost@5432@clinica_dental
+-- Active: 1691546713125@@127.0.0.1@5432@clinica_dental@public
 
 create database clinica_dental;
 
@@ -52,10 +52,11 @@ drop table if EXISTS tbl_doctores cascade;
 CREATE TABLE
     tbl_doctores (
         id SERIAL PRIMARY KEY,
-        usuario_id INTEGER REFERENCES tbl_usuarios(id),
         estado BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP,
-        color VARCHAR(7)
+        color VARCHAR(7),
+        nombre VARCHAR(500),
+        correo_electronico VARCHAR(1000)
     );
 
 drop table if EXISTS tbl_doctor_especialidades;
