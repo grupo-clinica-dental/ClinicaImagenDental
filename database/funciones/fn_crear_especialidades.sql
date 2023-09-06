@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION fn_crear_especialidades(p_nombre VARCHAR, p_fecha_borrado TIMESTAMP) 
+CREATE OR REPLACE FUNCTION fn_crear_especialidades(p_nombre VARCHAR) 
 RETURNS TABLE (
     exito BOOL,
     mensaje VARCHAR(1000),
@@ -12,8 +12,8 @@ DECLARE
 BEGIN
     BEGIN
         -- Intenta insertar un registro en tbl_especialidades
-        INSERT INTO tbl_especialidades (nombre, fecha_borrado)
-        VALUES (p_nombre, p_fecha_borrado)
+        INSERT INTO tbl_especialidades (nombre)
+        VALUES (p_nombre)
         RETURNING id INTO v_id_registro;
 
         -- Registra la acción en tbl_log_de_acciones

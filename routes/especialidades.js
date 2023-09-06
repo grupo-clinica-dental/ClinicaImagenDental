@@ -50,7 +50,7 @@ app.post('', (req, res) => {
     if (respuestaValidacion === false) {
         res.status(500).json(respuestaValidacion);
     } else {
-        let sql = ` SELECT * FROM fn_crear_especialidades($1, $2) `;
+        let sql = ` SELECT * FROM fn_crear_especialidades($1) `;
         db.one(sql, parametros, event => event.id)
         .then(data => {
 
@@ -90,7 +90,7 @@ app.put('/:id', (req, res) => {
 
     ];
 
-    let sql = ` SELECT * FROM fn_actualizar_especialidades($1, $2, $3) `;
+    let sql = ` SELECT * FROM fn_actualizar_especialidades($1, $2) `;
 
     let mensajes = new Array();
 
