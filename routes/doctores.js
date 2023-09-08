@@ -27,9 +27,8 @@ app.get('', (req, res) => {
 app.post('', (req, res) => {
 
     const parametros = [
-
-        req.body.usuario_id,
-        req.body.fecha_borrado,
+        req.body.nombre,
+        req.body.correo_electronico,
         req.body.color
 
     ];
@@ -56,8 +55,8 @@ app.post('', (req, res) => {
             const objetoCreado = {
 
                 id: data,
-                usuario_id: req.body.usuario_id,
-                fecha_borrado: req.body.fecha_borrado,
+                nombre: req.body.nombre,
+                correo_electronico: req.body.correo_electronico,
                 color: req.body.color
 
             }
@@ -84,13 +83,14 @@ app.put('/:id', (req, res) => {
 
     const parametros = [
 
-        req.body.fecha_borrado,
+        req.body.nombre,
+        req.body.correo_electronico,
         req.body.color,
         req.params.id
 
     ];
 
-    let sql = ` SELECT * FROM fn_actualizar_doctores ($1, $2, $3) `;
+    let sql = ` SELECT * FROM fn_actualizar_doctores ($1, $2, $3, $4) `;
 
     let mensajes = new Array();
 
@@ -109,7 +109,8 @@ app.put('/:id', (req, res) => {
             const objetoMod = {
 
                 id: req.params.id,
-                fecha_borrado: req.body.fecha_borrado,
+                nombre: req.body.nombre,
+                correo_electronico: req.body.correo_electronico,
                 color: req.body.color,
                 
 

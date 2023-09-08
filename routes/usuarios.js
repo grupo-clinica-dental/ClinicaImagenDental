@@ -10,34 +10,37 @@ const { error } = require('console');
 
 
 app.post('/', async (req, res) => {
-    const { nombre, email, telefono, password, secondPassword } = req.body;
-  
-    if (!nombre || !email || !password) {
+  const { nombre, email, telefono, password, secondPassword } = req.body;
+
+  if (!nombre || !email || !password) {
       return res.status(400).json({ message: 'Nombre, email y password son requeridos' });
-    }
+  }
 
-    const isEmailTaken = await db.query('Select email from tbl_usuarios where email = $1', [email])
+  const isEmailTaken = await db.query('SELECT email FROM tbl_usuarios WHERE email = $1', [email]);
 
+  if (isEmailTaken.length > 0) {
+      return res.status(400).json({ message: 'El correo electrónico ya está en uso.' });
+  }
 
-    if(isEmailTaken.length > 0) {
-    return res.status(400).json({message: 'El correo electronico ya esta en uso.'})
-    }
+  if (password !== secondPassword) {
+      return res.status(400).json({ message: 'Contraseñas no coinciden' });
+  }
 
-    if(password !== secondPassword) {
-        return res.status(400).json({ message: 'Contraseñas no coinciden' });
-    }
-  
-    try {
+  try {
+      const result = await db.query('SELECT * FROM fn_crear_usuario($1, $2, $3, $4)', [nombre, email, telefono, password]);
 
-        // TODO tener una biblioteca para hacer hash de la password
-     //  const hashedPassword = await bcrypt.hash(password, 10); Asegúrate de usar una biblioteca de hashing segura
-      await db.none('INSERT INTO tbl_usuarios (nombre, email, telefono, password) VALUES ($1, $2, $3, $4)', [nombre, email, telefono, password]);
-      res.status(201).json({ message: 'Usuario creado exitosamente' });
-    } catch (err) {
+      if (result.rows[0].exito) {
+          return res.status(201).json({ message: result.rows[0].mensaje, id_registro: result.rows[0].id_registro });
+      } else {
+          return res.status(500).json({ message: result.rows[0].mensaje });
+      }
+
+  } catch (err) {
       console.error({ ERROR: err, RUTA: '/usuarios', METODO: 'POST' });
       res.status(500).json({ message: 'Error al crear el usuario' });
-    }
-  });
+  }
+});
+
 
   app.get('/', async (req, res) => {
     try {
@@ -72,39 +75,41 @@ app.post('/', async (req, res) => {
     const { nombre, email, telefono, password } = req.body;
   
     try {
-        // TODO implementar el hash de la password
-    //   const hashedPassword = password ? await bcrypt.hash(password, 10) : null; // Si se actualiza la contraseña, se hace hash de ella
+        // Llamada a la función de PostgreSQL para actualizar el usuario
+        const result = await db.query('SELECT * FROM fn_actualizar_usuario($1, $2, $3, $4, $5)', [id, nombre, email, telefono, password]);
 
-      const updated = await db.result('UPDATE tbl_usuarios SET nombre = $1, email = $2, telefono = $3, password = $4 WHERE id = $5 AND estado = true', [nombre, email, telefono, password, id]);
-  
-      if (updated.rowCount === 0) {
-        return res.status(404).json({ message: 'Usuario no encontrado o no está activo' });
-      }
-  
-      res.status(200).json({ message: 'Usuario actualizado exitosamente' });
+        if (result.rows[0].exito) {
+            return res.status(200).json({ message: result.rows[0].mensaje });
+        } else {
+            return res.status(404).json({ message: result.rows[0].mensaje });
+        }
+
     } catch (err) {
-      console.error({ ERROR: err, RUTA: `/usuarios/${id}`, METODO: 'PUT' });
-      res.status(500).json({ message: 'Error al actualizar el usuario' });
+        console.error({ ERROR: err, RUTA: `/usuarios/${id}`, METODO: 'PUT' });
+        res.status(500).json({ message: 'Error al actualizar el usuario' });
     }
-  });
+});
+
   
-  app.delete('/:id', async (req, res) => {
-    const { id } = req.params;
-  
-    try {
-      const updated = await db.result('UPDATE tbl_usuarios SET estado = false, fecha_borra = CURRENT_TIMESTAMP WHERE id = $1', [id]);
-  
-      if (updated.rowCount === 0) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
+app.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+      // Llamada a la función de PostgreSQL para desactivar el usuario
+      const result = await db.query('SELECT * FROM fn_desactivar_usuario($1)', [id]);
+
+      if (result.rows[0].exito) {
+          return res.status(200).json({ message: result.rows[0].mensaje });
+      } else {
+          return res.status(404).json({ message: result.rows[0].mensaje });
       }
-  
-      res.status(200).json({ message: 'Usuario marcado como inactivo exitosamente' });
-    } catch (err) {
+
+  } catch (err) {
       console.error({ ERROR: err, RUTA: `/usuarios/${id}`, METODO: 'DELETE' });
       res.status(500).json({ message: 'Error al marcar el usuario como inactivo' });
-    }
-  });
-  
+  }
+});
+
   
   
 

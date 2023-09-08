@@ -1,4 +1,5 @@
-CREATE or replace FUNCTION fn_actualizar_especialidades( p_nombre varchar, p_fecha_borrado TIMESTAMP, p_id int) 
+-- Active: 1691546713125@@127.0.0.1@5432@clinica_dental@public
+CREATE or replace FUNCTION fn_actualizar_especialidades( p_nombre varchar, p_id int) 
 RETURNS  table 
                 (   
                     exito bool, 
@@ -18,7 +19,7 @@ BEGIN
     v_mensaje := 'Error en actualizar de usuario '||p_nombre;
 
     update tbl_especialidades 
-    set nombre = p_nombre, fecha_borrado = p_fecha_borrado 
+    set nombre = p_nombre
     where id = p_id;
 
 

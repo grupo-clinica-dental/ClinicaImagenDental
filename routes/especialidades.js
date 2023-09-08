@@ -30,7 +30,7 @@ app.post('', (req, res) => {
     const parametros = [
 
         req.body.nombre,
-        req.body.fecha_borrado
+        
 
     ];
 
@@ -50,15 +50,15 @@ app.post('', (req, res) => {
     if (respuestaValidacion === false) {
         res.status(500).json(respuestaValidacion);
     } else {
-        let sql = ` SELECT * FROM fn_crear_especialidades($1, $2) `;
+        let sql = ` SELECT * FROM fn_crear_especialidades($1) `;
         db.one(sql, parametros, event => event.id)
         .then(data => {
 
             const objetoCreado = {
 
                 id: data,
-                nombre: req.body.nombre,
-                fecha_borrado: req.body.fecha_borrado
+                nombre: req.body.nombre
+                
 
             }
             respuestaValidacion.mensaje.push("Operación Exitosa");
@@ -85,12 +85,11 @@ app.put('/:id', (req, res) => {
     const parametros = [
 
         req.body.nombre,
-        req.body.fecha_borrado,
         req.params.id
 
     ];
 
-    let sql = ` SELECT * FROM fn_actualizar_especialidades($1, $2, $3) `;
+    let sql = ` SELECT * FROM fn_actualizar_especialidades($1, $2) `;
 
     let mensajes = new Array();
 
@@ -110,7 +109,7 @@ app.put('/:id', (req, res) => {
 
                 id: req.params.id,
                 nombre: req.body.nombre,
-                fecha_borrado:req.body.fecha_borrado,
+                
 
             }
 
