@@ -122,7 +122,7 @@ app.put('/:id', (req, res) => {
 // Optener Todos los pacientes activos
 
 app.get('', (req, res) => {
-    let sql = `SELECT * FROM tbl_pacientes WHERE estado = true`;
+    let sql = `SELECT id, nombre, telefono, email,  to_char(fecha_nacimiento, 'yyyy-mm-dd') fecha_nacimiento, estado, fecha_borrado::date fecha_borrado  FROM tbl_pacientes WHERE estado = true`;
 
     db.any(sql)
         .then(rows => {
