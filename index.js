@@ -4,6 +4,7 @@ const cors = require('cors');
 app.use(express.json());
 app.use(cors());
 
+
 // Keven
 const roles = require('./routes/roles');
 app.use('/api/roles', roles);
@@ -47,11 +48,11 @@ app.use('/api/doctoresEspecialidades', doctoresEspecialidades);*/
 
 //David 
 
-/*const rutas = require('./routes/rutas');
-app.use('/api/rutas', rutas);*/
+const rutas = require('./routes/rutas');
+app.use('/api/rutas', rutas)
 
-/*const permisos = require('./routes/permisos');
-app.use('/api/permisos', permisos);*/
+const permisos = require('./routes/permisos');
+app.use('/api/permisos', permisos)
 
 const archivos = require('./routes/archivos');
 app.use('/api/archivos',archivos );

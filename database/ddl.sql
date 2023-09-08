@@ -151,12 +151,12 @@ drop table if EXISTS tbl_permisos CASCADE;
 create table
     tbl_permisos (
         id serial PRIMARY key,
-        id_ruta int,
-        id_rol int,
+        string_ruta int,
+        nombre_rol int,
         activa bool DEFAULT true,
         fecha_borrado TIMESTAMP,
-        constraint fk_id_rol_permiso Foreign Key (id_rol) REFERENCES tbl_roles(id),
-        constraint fk_id_ruta Foreign Key (id_ruta) REFERENCES tbl_rutas(id)
+        constraint fk_nombre_permiso Foreign Key (nombre_rol) REFERENCES tbl_roles(id),
+        constraint fk_string_ruta Foreign Key (string_ruta) REFERENCES tbl_rutas(id)
     );
 
 

@@ -1,6 +1,7 @@
+-- Crear permiso
 CREATE OR REPLACE FUNCTION fn_crear_permiso(
-    p_id_ruta integer,
-    p_id_rol integer,
+    p_nombre_rol varchar(255),
+    p_nombre_ruta varchar(300),
     p_activa boolean DEFAULT true
 ) 
 RETURNS TABLE (
@@ -15,14 +16,9 @@ DECLARE
 BEGIN
     v_mensaje := 'Error en creación de permiso';
 
-    INSERT INTO tbl_permisos (id_ruta, id_rol, activa)
-    VALUES (p_id_ruta, p_id_rol, p_activa)
+    INSERT INTO tbl_permisos (nombre_rol, nombre_ruta, activa)
+    VALUES (p_nombre_rol, p_nombre_ruta, p_activa)
     RETURNING id INTO id_registro;
-
-    v_mensaje := 'Error en la inserción del log';
-
-    INSERT INTO tbl_log_de_acciones (descripcion)
-    VALUES ('Se crea un permiso');
 
     v_mensaje := 'Operación Exitosa';
     RETURN QUERY SELECT v_exito, v_mensaje, id_registro;

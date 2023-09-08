@@ -1,35 +1,29 @@
-CREATE OR REPLACE FUNCTION fn_eliminar_ruta(p_id int)
+CREATE OR REPLACE FUNCTION fn_eliminar_ruta(
+    p_id_ruta integer
+) 
 RETURNS TABLE (
-    exito bool,
-    mensaje varchar(1000),
-    id_registro varchar(100)
+    exito boolean, 
+    mensaje varchar(1000)
 )
 AS $$
 DECLARE
-    v_exito bool := true;
+    v_exito boolean := true;
     v_mensaje varchar(1000);
-
 BEGIN
-    v_mensaje := 'Error al eliminar ruta con ID ' || p_id;
+    v_mensaje := 'Error al eliminar ruta';
 
-    UPDATE tbl_rutas SET activa = false WHERE id = p_id;
-
-    v_mensaje := 'Error en la inserción del log';
-
-    INSERT INTO tbl_log_de_acciones (descripcion)
-    VALUES ('Se eliminó la ruta con ID ' || p_id);
+    DELETE FROM tbl_rutas WHERE id = p_id_ruta;
 
     v_mensaje := 'Operación Exitosa';
-    RETURN QUERY SELECT v_exito, v_mensaje, p_id::varchar;
-
+    RETURN QUERY SELECT v_exito, v_mensaje;
 EXCEPTION
     WHEN OTHERS THEN
-        v_mensaje := 'Operación Errónea - ' || SQLERRM;
-
         INSERT INTO tbl_log_errores (descripcion, proceso)
         VALUES (v_mensaje || ' - ' || SQLERRM, 'fn_eliminar_ruta');
 
-        v_exito := false;
-        RETURN QUERY SELECT v_exito, v_mensaje, p_id::varchar;
+        v_exito := false; 
+        v_mensaje := 'Operación Errónea - ' || SQLERRM;
+
+        RETURN QUERY SELECT v_exito, v_mensaje;
 END;
 $$ LANGUAGE plpgsql;

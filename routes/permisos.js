@@ -2,11 +2,11 @@ const express = require('express');
 const app = express.Router();
 const db = require('../db/conn');
 
+// Ruta para crear un permiso
 app.post('/', (req, res) => {
-
     const parametros = [
-        req.body.id_ruta,
-        req.body.id_rol,
+        req.body.nombre_rol,
+        req.body.nombre_ruta,
         req.body.activa
     ];
 
@@ -40,12 +40,13 @@ app.post('/', (req, res) => {
         });
 });
 
-app.put('/', (req, res) => {
-
+// Ruta para actualizar un permiso
+app.put('/:id', (req, res) => {
+    const idPermiso = req.params.id;
     const parametros = [
-        req.body.id_permiso,
-        req.body.id_ruta,
-        req.body.id_rol,
+        idPermiso,
+        req.body.nombre_rol,
+        req.body.nombre_ruta,
         req.body.activa
     ];
 
@@ -70,6 +71,7 @@ app.put('/', (req, res) => {
         });
 });
 
+// Ruta para eliminar un permiso
 app.delete('/:id', (req, res) => {
     const idPermiso = req.params.id;
 
@@ -93,8 +95,8 @@ app.delete('/:id', (req, res) => {
         });
 });
 
+// Ruta para obtener todos los permisos activos
 app.get('/', (req, res) => {
-
     const sql = 'SELECT * FROM tbl_permisos WHERE activa = true';
 
     db.any(sql)
@@ -113,7 +115,6 @@ app.get('/', (req, res) => {
                 error: error.message
             });
         });
-
 });
 
 function registrarError(mensaje) {
