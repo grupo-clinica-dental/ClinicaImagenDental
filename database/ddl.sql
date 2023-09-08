@@ -139,26 +139,23 @@ CREATE TABLE
 
 drop table if EXISTS tbl_rutas cascade;
 
-create table
-    tbl_rutas (
-        id serial PRIMARY key,
-        string_ruta varchar(300),
-        activa bool DEFAULT true,
-        fecha_borrado TIMESTAMP
-    );
+CREATE TABLE IF NOT EXISTS tbl_rutas (
+    id SERIAL PRIMARY KEY,
+    string_ruta VARCHAR(255) NOT NULL
+);
 
 drop table if EXISTS tbl_permisos CASCADE;
 
-create table
-    tbl_permisos (
-        id serial PRIMARY key,
-        string_ruta int,
-        nombre_rol int,
-        activa bool DEFAULT true,
-        fecha_borrado TIMESTAMP,
-        constraint fk_nombre_permiso Foreign Key (nombre_rol) REFERENCES tbl_roles(id),
-        constraint fk_string_ruta Foreign Key (string_ruta) REFERENCES tbl_rutas(id)
-    );
+CREATE TABLE tbl_permisos (
+    id serial PRIMARY KEY,
+    nombre_rol varchar(255), 
+    nombre_ruta varchar(300), 
+    activa boolean DEFAULT true,
+    fecha_borrado TIMESTAMP,
+    FOREIGN KEY (nombre_rol) REFERENCES tbl_roles(nombre_rol),
+    FOREIGN KEY (nombre_ruta) REFERENCES tbl_rutas(nombre_ruta)
+);
+
 
 
     
