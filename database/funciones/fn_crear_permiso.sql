@@ -16,8 +16,11 @@ DECLARE
 BEGIN
     v_mensaje := 'Error en creación de permiso';
 
-    INSERT INTO tbl_permisos (nombre_rol, nombre_ruta, activa)
-    VALUES (p_nombre_rol, p_nombre_ruta, p_activa)
+    INSERT INTO tbl_permisos (ruta_id, rol_id, activa)
+    SELECT r.id, rol.id, p_activa
+    FROM tbl_rutas r
+    JOIN tbl_roles rol ON rol.nombre_rol = p_nombre_rol
+    WHERE r.string_ruta = p_nombre_ruta
     RETURNING id INTO id_registro;
 
     v_mensaje := 'Operación Exitosa';

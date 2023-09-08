@@ -5,8 +5,8 @@ const db = require('../db/conn');
 // Ruta para crear un permiso
 app.post('/', (req, res) => {
     const parametros = [
-        req.body.nombre_rol,
-        req.body.nombre_ruta,
+        req.body.rol_id,
+        req.body.ruta_id,
         req.body.activa
     ];
 
@@ -45,8 +45,8 @@ app.put('/:id', (req, res) => {
     const idPermiso = req.params.id;
     const parametros = [
         idPermiso,
-        req.body.nombre_rol,
-        req.body.nombre_ruta,
+        req.body.rol_id,
+        req.body.ruta_id,
         req.body.activa
     ];
 

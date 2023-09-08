@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION fn_actualizar_permiso(
     p_id_permiso integer,
-    p_nombre_rol varchar(255),
-    p_nombre_ruta varchar(300),
+    p_rol_id integer,
+    p_ruta_id integer,
     p_activa boolean DEFAULT true
 ) 
 RETURNS TABLE (
@@ -15,11 +15,17 @@ DECLARE
 BEGIN
     v_mensaje := 'Error en actualización de permiso';
 
-    UPDATE tbl_permisos
-    SET nombre_rol = p_nombre_rol, nombre_ruta = p_nombre_ruta, activa = p_activa
-    WHERE id = p_id_permiso;
+    UPDATE tbl_permisos AS p
+    SET rol_id = p_rol_id, ruta_id = p_ruta_id, activa = p_activa
+    WHERE p.id = p_id_permiso;
 
-    v_mensaje := 'Operación Exitosa';
+    IF NOT FOUND THEN
+        v_exito := false;
+        v_mensaje := 'No se encontró el permiso con ID ' || p_id_permiso;
+    ELSE
+        v_mensaje := 'Operación Exitosa';
+    END IF;
+
     RETURN QUERY SELECT v_exito, v_mensaje;
 EXCEPTION
     WHEN OTHERS THEN
