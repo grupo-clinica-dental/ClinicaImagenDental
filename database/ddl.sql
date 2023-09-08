@@ -1,4 +1,4 @@
--- Active: 1691546713125@@127.0.0.1@5432@clinica_dental@public
+-- Active: 1689640455352@@127.0.0.1@5432@clinica_dental@public
 
 create database clinica_dental;
 
@@ -148,12 +148,12 @@ drop table if EXISTS tbl_permisos CASCADE;
 
 CREATE TABLE tbl_permisos (
     id serial PRIMARY KEY,
-    nombre_rol varchar(255), 
-    nombre_ruta varchar(300), 
+    id_rol int, 
+    id_ruta int, 
     activa boolean DEFAULT true,
     fecha_borrado TIMESTAMP,
-    FOREIGN KEY (nombre_rol) REFERENCES tbl_roles(nombre_rol),
-    FOREIGN KEY (nombre_ruta) REFERENCES tbl_rutas(nombre_ruta)
+    constraint fk_id_rol_1 FOREIGN KEY (id_rol) REFERENCES tbl_roles(id),
+    constraint fk_id_ruta_1 FOREIGN KEY (id_ruta) REFERENCES tbl_rutas(id)
 );
 
 
