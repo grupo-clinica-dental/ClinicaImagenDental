@@ -2,134 +2,92 @@ const express = require('express');
 const app = express.Router();
 const db = require('../db/conn');
 
-app.post('/', (req, res) => {
-    const { string_ruta, activa } = req.body;
+// Crear una ruta
+app.post('/', async (req, res) => {
+    try {
+        const { string_ruta, activa } = req.body;
+        const sql = 'SELECT * FROM fn_crear_ruta($1, $2)';
 
-    const sql = 'SELECT * FROM fn_crear_ruta($1, $2);';
+        const newRuta = await db.one(sql, [string_ruta, activa]);
 
-    db.any(sql, [string_ruta, activa])
-        .then(data => {
-            const respuesta = data[0];
-
-            if (respuesta.exito) {
-                res.json({
-                    exito: true,
-                    mensaje: respuesta.mensaje,
-                    id_registro: respuesta.id_registro
-                });
-            } else {
-                registrarError(respuesta.mensaje);
-                res.status(500).json({
-                    exito: false,
-                    mensaje: respuesta.mensaje
-                });
-            }
-        })
-        .catch(error => {
-            registrarError("Error al conectar con la base de datos: " + error.message);
-            res.status(500).json({
-                exito: false,
-                mensaje: "Error al conectar con la base de datos",
-                error: error.message
-            });
+        res.status(201).json({
+            exito: true,
+            mensaje: 'Ruta creada exitosamente.',
+            ruta: newRuta
         });
+    } catch (error) {
+        res.status(500).json({
+            exito: false,
+            mensaje: 'Error al crear la ruta.',
+            error: error.message
+        });
+    }
 });
 
-app.put('/', (req, res) => {
-    const { id_ruta, string_ruta, activa } = req.body;
+// Actualizar una ruta
+app.put('/', async (req, res) => {
+    try {
+        const { id_ruta, string_ruta, activa } = req.body;
+        const sql = 'SELECT * FROM fn_actualizar_ruta($1, $2, $3)';
 
-    const sql = 'SELECT * FROM fn_actualizar_ruta($1, $2, $3);';
+        const updatedRuta = await db.one(sql, [id_ruta, string_ruta, activa]);
 
-    db.any(sql, [id_ruta, string_ruta, activa])
-        .then(data => {
-            const respuesta = data[0];
-
-            if (respuesta.exito) {
-                res.json({
-                    exito: true,
-                    mensaje: respuesta.mensaje,
-                    id_registro: respuesta.id_registro
-                });
-            } else {
-                registrarError(respuesta.mensaje);
-                res.status(500).json({
-                    exito: false,
-                    mensaje: respuesta.mensaje
-                });
-            }
-        })
-        .catch(error => {
-            registrarError("Error al conectar con la base de datos: " + error.message);
-            res.status(500).json({
-                exito: false,
-                mensaje: "Error al conectar con la base de datos",
-                error: error.message
-            });
+        res.status(200).json({
+            exito: true,
+            mensaje: 'Ruta actualizada exitosamente.',
+            ruta: updatedRuta
         });
+    } catch (error) {
+        res.status(500).json({
+            exito: false,
+            mensaje: 'Error al actualizar la ruta.',
+            error: error.message
+        });
+    }
 });
 
-app.delete('/:id', (req, res) => {
-    const idRuta = req.params.id;
+// Eliminar una ruta
+app.delete('/:id', async (req, res) => {
+    try {
+        const idRuta = req.params.id;
+        const sql = 'SELECT * FROM fn_eliminar_ruta($1)';
 
-    const sql = 'SELECT * FROM fn_eliminar_ruta($1);';
+        await db.none(sql, [idRuta]);
 
-    db.any(sql, [idRuta])
-        .then(data => {
-            const respuesta = data[0];
-
-            if (respuesta.exito) {
-                res.json({
-                    exito: true,
-                    mensaje: respuesta.mensaje
-                });
-            } else {
-                registrarError(respuesta.mensaje);
-                res.status(500).json({
-                    exito: false,
-                    mensaje: respuesta.mensaje
-                });
-            }
-        })
-        .catch(error => {
-            registrarError("Error al conectar con la base de datos: " + error.message);
-            res.status(500).json({
-                exito: false,
-                mensaje: "Error al conectar con la base de datos",
-                error: error.message
-            });
+        res.json({
+            exito: true,
+            mensaje: 'Ruta eliminada exitosamente.'
         });
+    } catch (error) {
+        res.status(500).json({
+            exito: false,
+            mensaje: 'Error al eliminar la ruta.',
+            error: error.message
+        });
+    }
 });
 
-app.get('/', (req, res) => {
-    const sql = 'SELECT * FROM tbl_rutas WHERE activa = true';
+// Obtener todas las rutas activas
+app.get('/', async (req, res) => {
+    try {
+        const sql = 'SELECT * FROM tbl_rutas WHERE activa = true'; // Cambia 'rutas' por el nombre de tu tabla
 
-    db.any(sql)
-        .then(data => {
-            res.json({
-                exito: true,
-                mensaje: 'Permisos activos obtenidos exitosamente.',
-                permisos: data
-            });
-        })
-        .catch(error => {
-            registrarError("Error al obtener los permisos activos: " + error.message);
-            res.status(500).json({
-                exito: false,
-                mensaje: 'Error al obtener los permisos activos.',
-                error: error.message
-            });
+        const rutas = await db.any(sql);
+
+        res.json({
+            exito: true,
+            mensaje: 'Rutas activas obtenidas exitosamente.',
+            rutas
         });
+    } catch (error) {
+        res.status(500).json({
+            exito: false,
+            mensaje: 'Error al obtener las rutas activas.',
+            error: error.message
+        });
+    }
 });
 
-
-function registrarError(mensaje) {
-    const sql = 'INSERT INTO tbl_log_errores (descripcion, proceso) VALUES ($1, $2);';
-
-    db.none(sql, [mensaje, 'API'])
-        .catch(error => {
-            console.error("Error al registrar el error en el log: " + error.message);
-        });
-}
 
 module.exports = app;
 

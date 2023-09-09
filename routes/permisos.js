@@ -96,6 +96,7 @@ app.delete('/:id', (req, res) => {
 });
 
 // Ruta para obtener todos los permisos activos
+// Ruta para obtener todos los permisos activos
 app.get('/', (req, res) => {
     const sql = 'SELECT * FROM tbl_permisos WHERE activa = true';
 
@@ -104,7 +105,7 @@ app.get('/', (req, res) => {
             res.json({
                 exito: true,
                 mensaje: 'Permisos activos obtenidos exitosamente.',
-                permisos: data
+                permisos: data // Esto asegura que 'data' sea un arreglo
             });
         })
         .catch(error => {
@@ -116,6 +117,7 @@ app.get('/', (req, res) => {
             });
         });
 });
+
 
 function registrarError(mensaje) {
     const sql = `INSERT INTO tbl_log_errores (descripcion, proceso) VALUES ($1, 'API')`;
