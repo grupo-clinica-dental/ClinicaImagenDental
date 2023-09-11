@@ -128,4 +128,4 @@ dist
 .pnp.*
 
 indexDevelop.js
-conn.js
+env
