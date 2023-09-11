@@ -25,12 +25,13 @@ app.post('/', async (req, res) => {
 });
 
 // Actualizar una ruta
-app.put('/', async (req, res) => {
+app.put('/:id', async (req, res) => {
     try {
-        const { id_ruta, string_ruta, activa } = req.body;
+        const { id } = req.params; // Obtén el ID de la URL
+        const { string_ruta, activa } = req.body;
         const sql = 'SELECT * FROM fn_actualizar_ruta($1, $2, $3)';
 
-        const updatedRuta = await db.one(sql, [id_ruta, string_ruta, activa]);
+        const updatedRuta = await db.one(sql, [id, string_ruta, activa]);
 
         res.status(200).json({
             exito: true,
@@ -45,6 +46,7 @@ app.put('/', async (req, res) => {
         });
     }
 });
+
 
 // Eliminar una ruta
 app.delete('/:id', async (req, res) => {
@@ -67,8 +69,41 @@ app.delete('/:id', async (req, res) => {
     }
 });
 
-// Obtener todas las rutas activas
-app.get('/', async (req, res) => {
+
+
+
+
+// Obtener todas las rutas activas con id
+app.get('/:id', async (req, res) => {
+    try {
+        const id = req.params.id; // Obtén el ID de la URL
+
+        const sql = 'SELECT * FROM tbl_rutas WHERE activa = true AND id = $1'; // Cambia 'rutas' por el nombre de tu tabla
+        const rutas = await db.any(sql, [id]);
+
+        if (rutas.length === 0) {
+            return res.status(404).json({
+                exito: false,
+                mensaje: 'No se encontró una ruta con el ID proporcionado.'
+            });
+        }
+
+        res.json({
+            exito: true,
+            mensaje: 'Ruta activa obtenida exitosamente.',
+            ruta: rutas[0] // Devolvemos la primera ruta encontrada (debería ser única por ID)
+        });
+    } catch (error) {
+        res.status(500).json({
+            exito: false,
+            mensaje: 'Error al obtener la ruta activa.',
+            error: error.message
+        });
+    }
+});
+
+
+app.get('/', async (req, res) => {  // Obtener todas las rutas activas
     try {
         const sql = 'SELECT * FROM tbl_rutas WHERE activa = true'; // Cambia 'rutas' por el nombre de tu tabla
 

@@ -1,7 +1,7 @@
 -- Crear permiso
 CREATE OR REPLACE FUNCTION fn_crear_permiso(
-    p_nombre_rol varchar(255),
-    p_nombre_ruta varchar(300),
+    p_rol_id integer,
+    p_ruta_id integer,
     p_activa boolean DEFAULT true
 ) 
 RETURNS TABLE (
@@ -16,11 +16,8 @@ DECLARE
 BEGIN
     v_mensaje := 'Error en creación de permiso';
 
-    INSERT INTO tbl_permisos (ruta_id, rol_id, activa)
-    SELECT r.id, rol.id, p_activa
-    FROM tbl_rutas r
-    JOIN tbl_roles rol ON rol.nombre_rol = p_nombre_rol
-    WHERE r.string_ruta = p_nombre_ruta
+    INSERT INTO tbl_permisos (rol_id, ruta_id, activa)
+    VALUES (p_rol_id, p_ruta_id, p_activa)
     RETURNING id INTO id_registro;
 
     v_mensaje := 'Operación Exitosa';
