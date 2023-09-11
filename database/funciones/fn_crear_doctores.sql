@@ -1,4 +1,4 @@
--- Active: 1691546713125@@127.0.0.1@5432@clinica_dental@public
+-- Active: 1690920567382@@localhost@5432@clinica_dental
 
 CREATE OR REPLACE FUNCTION fn_crear_doctores(p_nombre VARCHAR, p_correo_electronico VARCHAR, p_color VARCHAR) 
 RETURNS TABLE (
