@@ -45,8 +45,8 @@ app.use('/api/especialidades', especialidades);
 const estadoCita = require('./routes/estadoCita');
 app.use('/api/estadoCita', estadoCita);
 
-/*const doctoresEspecialidades = require('./routes/doctoresEspecialidades');
-app.use('/api/doctoresEspecialidades', doctoresEspecialidades);*/
+const doctoresEspecialidades = require('./routes/doctoresEspecialidades');
+app.use('/api/doctoresEspecialidades', doctoresEspecialidades);
 
 //David 
 
