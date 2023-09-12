@@ -118,6 +118,27 @@ app.get('/', (req, res) => {
         });
 });
 
+app.get('/:id', (req, res) => {
+    const sql = 'SELECT * FROM tbl_permisos WHERE activa = true';
+
+    db.any(sql)
+        .then(data => {
+            res.json({
+                exito: true,
+                mensaje: 'Permisos activos obtenidos exitosamente.',
+                permisos: data // Esto asegura que 'data' sea un arreglo
+            });
+        })
+        .catch(error => {
+            registrarError("Error al obtener los permisos activos: " + error.message);
+            res.status(500).json({
+                exito: false,
+                mensaje: 'Error al obtener los permisos activos.',
+                error: error.message
+            });
+        });
+});
+
 
 function registrarError(mensaje) {
     const sql = `INSERT INTO tbl_log_errores (descripcion, proceso) VALUES ($1, 'API')`;
