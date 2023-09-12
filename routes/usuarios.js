@@ -29,10 +29,12 @@ app.post('/', async (req, res) => {
   try {
       const result = await db.query('SELECT * FROM fn_crear_usuario($1, $2, $3, $4)', [nombre, email, telefono, password]);
 
-      if (result.rows[0].exito) {
-          return res.status(201).json({ message: result.rows[0].mensaje, id_registro: result.rows[0].id_registro });
+      console.log(result[0])
+
+      if (result[0].exito) {
+          return res.status(201).json({ message: 'Usuario Creado con exito', data: result[0].id_registro });
       } else {
-          return res.status(500).json({ message: result.rows[0].mensaje });
+          return res.status(500).json({ message: 'Hubo un error al crear el usuario' });
       }
 
   } catch (err) {
@@ -91,7 +93,7 @@ app.post('/', async (req, res) => {
 });
 
   
-app.delete('/:id', async (req, res) => {
+app.delete('/:id', async (req , res) => {
   const { id } = req.params;
 
   try {

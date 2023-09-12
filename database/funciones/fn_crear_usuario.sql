@@ -1,15 +1,11 @@
--- Active: 1689640455352@@127.0.0.1@5432@clinica_dental
--- Crear función para insertar un nuevo usuario en la tabla tbl_usuarios
-
 CREATE OR REPLACE FUNCTION FN_CREAR_USUARIO(P_NOMBRE 
 VARCHAR(100), P_EMAIL VARCHAR(100), P_TELEFONO VARCHAR
 (15), P_PASSWORD VARCHAR(255)) RETURNS TABLE(EXITO 
-BOOLEAN, MENSAJE VARCHAR(1000), ID_REGISTRO int
-) AS $$ 
-	 DECLARE v_exito BOOLEAN := TRUE;
+BOOLEAN, MENSAJE VARCHAR(1000), ID_REGISTRO INT) AS 
+	$$ DECLARE v_exito BOOLEAN := TRUE;
 	v_mensaje VARCHAR(1000);
 	v_id int;
-	BEGIN
+	BEGIN -- Tu lógica aquí
 	INSERT INTO
 	    tbl_usuarios (
 	        nombre,
@@ -22,7 +18,8 @@ BOOLEAN, MENSAJE VARCHAR(1000), ID_REGISTRO int
 	        p_email,
 	        p_telefono,
 	        p_password
-	    ) RETURNING id INTO v_id;
+	    )
+	RETURNING id INTO v_id;
 	INSERT INTO
 	    tbl_log_de_acciones (descripcion)
 	VALUES (

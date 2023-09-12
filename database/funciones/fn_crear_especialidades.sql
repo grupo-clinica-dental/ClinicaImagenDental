@@ -1,3 +1,4 @@
+-- Active: 1690920567382@@localhost@5432@clinica_dental
 CREATE OR REPLACE FUNCTION fn_crear_especialidades(p_nombre VARCHAR) 
 RETURNS TABLE (
     exito BOOL,
