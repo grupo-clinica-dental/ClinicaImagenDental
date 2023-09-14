@@ -1,4 +1,3 @@
-
 const pgp = require('pg-promise')();
 
 const user = process.env.DB_USER;

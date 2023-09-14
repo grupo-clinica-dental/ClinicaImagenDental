@@ -53,12 +53,10 @@ app.delete('/:id', async (req, res) => {
     try {
         const idRuta = req.params.id;
         const sql = 'SELECT * FROM fn_eliminar_ruta($1)';
-
-        await db.none(sql, [idRuta]);
-
-        res.json({
-            exito: true,
-            mensaje: 'Ruta eliminada exitosamente.'
+        const resultado = await db.one(sql, [idRuta]);
+        res.status(resultado.exito ? 200 : 500).json({ // condicional de estatus
+            exito: resultado.exito,
+            mensaje: resultado.mensaje
         });
     } catch (error) {
         res.status(500).json({
@@ -68,6 +66,7 @@ app.delete('/:id', async (req, res) => {
         });
     }
 });
+
 
 
 
