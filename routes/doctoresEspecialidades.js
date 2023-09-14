@@ -136,7 +136,7 @@ app.get('', (req, res) => {
               exito: true,
               mensaje: [],
               excepcion: "",
-              item_paciente: {}  
+              item_doctor_especialidad: {}  
           };
 
           if (rows.length === 0 || rows[0].doctor_id === null) {
@@ -145,7 +145,7 @@ app.get('', (req, res) => {
               res.status(404).json(respuesta);
           } else {
               respuesta.mensaje.push("Registros obtenidos exitosamente");
-              respuesta.item_paciente = rows;  
+              respuesta.item_doctor_especialidad = rows;  
               res.status(200).json(respuesta);
           }
       })
