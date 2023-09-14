@@ -63,11 +63,11 @@ drop table if EXISTS tbl_doctor_especialidades;
 
 CREATE TABLE
     tbl_doctor_especialidades (
+         id SERIAL PRIMARY KEY,
         doctor_id INTEGER NOT NULL,
         especialidad_id INTEGER NOT NULL,
         estado BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP,
-        PRIMARY KEY (doctor_id, especialidad_id),
         FOREIGN KEY (doctor_id) REFERENCES tbl_doctores(id),
         FOREIGN KEY (especialidad_id) REFERENCES tbl_especialidades(id)
     );
