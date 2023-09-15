@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express.Router();
 const db = require('../db/conn');
+const requireAuth = require('../middlewares/requireAuth');
 
 //  la tabla pacientes  con los campos id, nombre, telefono, email, fecha_nacimiento
 
@@ -8,7 +9,7 @@ const correogmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
 // Insertar Pacientes
 
-app.post('', (req, res) => {
+app.post('', [requireAuth], (req, res) => {
     const { nombre, telefono, email, fecha_nacimiento } = req.body;
 
     let mensajes = [];
@@ -64,7 +65,7 @@ app.post('', (req, res) => {
 
 // Actualizar paciente solo si esta activo
 
-app.put('/:id', (req, res) => {
+app.put('/:id', [requireAuth], (req, res) => {
     const { id } = req.params;
     const { nombre, telefono, email, fecha_nacimiento } = req.body;
 
@@ -121,7 +122,7 @@ app.put('/:id', (req, res) => {
 
 // Optener Todos los pacientes activos
 
-app.get('', (req, res) => {
+app.get('', [requireAuth], (req, res) => {
     let sql = `SELECT id, nombre, telefono, email,  to_char(fecha_nacimiento, 'yyyy-mm-dd') fecha_nacimiento, estado, fecha_borrado::date fecha_borrado  FROM tbl_pacientes WHERE estado = true`;
 
     db.any(sql)
@@ -156,7 +157,7 @@ app.get('', (req, res) => {
 
 //Optener Paciente por id que este activo 
 
-app.get('/:id', (req, res) => {
+app.get('/:id', [requireAuth], (req, res) => {
     const { id } = req.params;
 
     let sql = 'SELECT * FROM tbl_pacientes WHERE id = $1 AND estado = true';
@@ -194,7 +195,7 @@ app.get('/:id', (req, res) => {
 
 
 // Metodo Eliminar que solo desactiva a los pacientes
-app.delete('/:id', (req, res) => {
+app.delete('/:id', [requireAuth], (req, res) => {
     const { id } = req.params;
 
     let sql = `SELECT * FROM fn_desactivar_paciente($1)`;

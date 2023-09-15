@@ -1,12 +1,26 @@
-import jwt from "jsonwebtoken";
-import pool from "../../database";
-import { getNewResponseApi } from "../utils/createApiResponse";
+const express = require("express");
+const app = express.Router();
+const db = require ('../db/conn');  
+const getNewResponseApi = require('./../utils/createApiResponse');
+const jwt = require('jsonwebtoken');
 
-export const loginHandler = async (req, res) => {
+const loginHandler = async (req, res) => {
   const response = getNewResponseApi();
 
   try {
-    const { email, password } = req.body;
+    const { email, password, secondPassword } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ ...response, message: "Faltan campos por llenar" });
+    }
+
+    if (password !== secondPassword) {
+      return res
+        .status(400)
+        .json({ ...response, message: "Las contraseñas no coinciden" });
+    }
 
     const query = `
       SELECT u.id, u.email, u.password, u.nombre, u.telefono, u.estado, r.nombre as rol
@@ -14,23 +28,22 @@ export const loginHandler = async (req, res) => {
       INNER JOIN tbl_roles r ON u.id_rol = r.id
       WHERE u.email = $1`;
     const values = [email];
-    const result = await pool.query(query, values);
+    const result = await db.any(query, values); // Changed from pool.query
 
-    if (result.rows.length <= 0) {
+    if (result.length <= 0) {
       return res
         .status(401)
         .json({ ...response, message: "No Autorizado para obtener el perfil" });
     }
 
-    const user = result.rows[0];
-    // Verifica la contraseña (asumiendo que es en texto plano, lo cual no es seguro. Deberías cifrarla.)
+    const user = result[0];
+
     if (user.password !== password) {
       return res
         .status(401)
         .json({ ...response, message: "Contraseña incorrecta" });
     }
 
-    // Crear el payload del token sin incluir la contraseña
     const tokenPayload = {
       id: user.id,
       email: user.email,
@@ -47,7 +60,7 @@ export const loginHandler = async (req, res) => {
     return res.status(200).json({
       ...response,
       message: "Usuario Autenticado con exito",
-      data: { token, rol: user.rol },
+      data: { token, rol: user.rol, welcomeMessage: `Bienvenido ${user.nombre}` },
       succeded: true,
     });
   } catch (error) {
@@ -58,3 +71,8 @@ export const loginHandler = async (req, res) => {
     });
   }
 };
+
+app.post("/login", loginHandler);
+
+module.exports = app;
+// Compare this snippet from routes/usuarios.js:

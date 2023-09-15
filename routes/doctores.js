@@ -1,8 +1,9 @@
 const express = require('express');
 const app = express.Router();
 const db = require('../db/conn');
+const requireAuth = require('../middlewares/requireAuth');
 
-app.get('', (req, res) => {
+app.get('', [requireAuth], (req, res) => {
 
     let sql = `SELECT * FROM tbl_doctores WHERE estado = true `;
 
@@ -24,7 +25,7 @@ app.get('', (req, res) => {
 
 });
 
-app.post('', (req, res) => {
+app.post('', [requireAuth], (req, res) => {
 
     const parametros = [
         req.body.nombre,
@@ -78,7 +79,7 @@ app.post('', (req, res) => {
 
 });
 
-app.put('/:id', (req, res) => {
+app.put('/:id', [requireAuth],(req, res) => {
 
 
     const parametros = [
@@ -133,7 +134,7 @@ app.put('/:id', (req, res) => {
 
 });
 
-app.delete('/:id', (req, res) => {
+app.delete('/:id', [requireAuth], (req, res) => {
 
 
     const parametros = [

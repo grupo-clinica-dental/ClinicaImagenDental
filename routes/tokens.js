@@ -7,8 +7,10 @@ const app = express.Router();
 const db = require('../db/conn');
 // importamos el error para mostrar errores de consola
 const { error } = require('console');
+// importamos el middleware para validar el token
+const requireAuth = require('../middlewares/requireAuth');
 
-app.post('/', async (req, res) => {
+app.post('/', [requireAuth],async (req, res) => {
     const { usuario_id, token, fecha_inicio, fecha_expiracion } = req.body;
   
     if (!usuario_id || !token || !fecha_inicio || !fecha_expiracion) {
@@ -25,7 +27,7 @@ app.post('/', async (req, res) => {
   });
 
 
-  app.put('/:id', async (req, res) => {
+  app.put('/:id', [requireAuth],async (req, res) => {
     const { id } = req.params;
     const { usuario_id, token, fecha_inicio, fecha_expiracion } = req.body;
   
@@ -44,7 +46,7 @@ app.post('/', async (req, res) => {
   });
 
 
-  app.delete('/:id', async (req, res) => {
+  app.delete('/:id', [requireAuth],async (req, res) => {
     const { id } = req.params;
   
     try {

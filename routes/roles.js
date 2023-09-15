@@ -7,13 +7,15 @@ const app = express.Router();
 const db = require('../db/conn');
 // importamos el error para mostrar errores de consola
 const { error } = require('console');
+// importamos el middleware para validar el token
+const requireAuth = require('../middlewares/requireAuth');
 
 
 // metodo crear post
 
 // definimos la funcion como asincrona ya que haremos una consulta que tomara tiempo en la base de datos
 
-app.post('/', async (req, res) => {
+app.post('/', [requireAuth], async (req, res) => {
     // extraemos el nombre del body de la request
     const { nombre } = req.body;
     // validamos que el campo no venga vacio y con el metodo trim quitamos espacios
@@ -39,7 +41,7 @@ app.post('/', async (req, res) => {
   
 
   // Método para obtener todos los roles activos (GET)
-app.get('/', async (req, res) => {
+app.get('/', [requireAuth],async (req, res) => {
     try {
       // Consultamos todos los roles activos en la base de datos
       const roles = await db.manyOrNone('SELECT * FROM tbl_roles WHERE activo = true');
@@ -55,7 +57,7 @@ app.get('/', async (req, res) => {
   
   
 // Método para obtener un rol específico por ID (GET)
-app.get('/:id', async (req, res) => {
+app.get('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
     try {
       // Consultamos el rol por ID y verificamos que esté activo
@@ -77,7 +79,7 @@ app.get('/:id', async (req, res) => {
 
   
 // Método para actualizar un rol (PUT)
-app.put('/:id', async (req, res) => {
+app.put('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
     const { nombre } = req.body;
     // Validamos que el campo nombre no esté vacío y sin espacios
@@ -106,7 +108,7 @@ app.put('/:id', async (req, res) => {
   
 
  // Método para marcar un rol como inactivo (DELETE)
-app.delete('/:id', async (req, res) => {
+app.delete('/:id', [requireAuth], [requireAuth],async (req, res) => {
     const { id } = req.params;
     try {
       // Actualizamos el estado del rol a inactivo y agregamos la fecha de borrado
@@ -128,7 +130,7 @@ app.delete('/:id', async (req, res) => {
 
   
  // Método para restaurar un rol (PUT)
-app.put('/restore/:id', async (req, res) => {
+app.put('/restore/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
     try {
       // Actualizamos el estado del rol a activo y removemos la fecha de borrado

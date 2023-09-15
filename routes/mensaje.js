@@ -1,9 +1,10 @@
 const express = require('express');
 const db = require('../db/conn');
 const app = express.Router();
+const requireAuth = require('../middlewares/requireAuth');
 
 
-app.post('/', async (req, res) => {
+app.post('/', [requireAuth], async (req, res) => {
     const { tipo_mensaje_id, usuario_id, cita_id, contenido } = req.body;
 
     if (!tipo_mensaje_id || !usuario_id || !cita_id || !contenido) {
@@ -22,7 +23,7 @@ app.post('/', async (req, res) => {
 });
 
 
-app.get('/', async (req, res) => {
+app.get('/', [requireAuth], async (req, res) => {
     try {
         const mensajes = await db.manyOrNone('SELECT * FROM tbl_mensajes WHERE estado = true');
         res.status(200).json(mensajes);
@@ -33,7 +34,7 @@ app.get('/', async (req, res) => {
 });
 
 
-app.get('/:id', async (req, res) => {
+app.get('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -51,7 +52,7 @@ app.get('/:id', async (req, res) => {
 });
 
 
-app.put('/:id', async (req, res) => {
+app.put('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
     const { tipo_mensaje_id, usuario_id, cita_id, contenido } = req.body;
 
@@ -75,7 +76,7 @@ app.put('/:id', async (req, res) => {
 });
 
 
-app.delete('/:id', async (req, res) => {
+app.delete('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
 
     try {

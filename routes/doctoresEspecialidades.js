@@ -1,8 +1,9 @@
 const express = require('express');
 const app = express.Router();
 const db = require('../db/conn');
+const requireAuth = require('../middlewares/requireAuth');
 
-app.post('', (req, res) => {
+app.post('', [requireAuth], (req, res) => {
   const { doctor_id, especialidad_id } = req.body;
 
   let mensajes = [];
@@ -49,7 +50,7 @@ app.post('', (req, res) => {
       });
 });
 
-app.put('/:id', (req, res) => {
+app.put('/:id', [requireAuth], (req, res) => {
     const { id } = req.params;
     const { doctor_id, especialidad_id } = req.body;
 
@@ -98,7 +99,7 @@ app.put('/:id', (req, res) => {
         });
 });
 
-app.delete('/:id', (req, res) => {
+app.delete('/:id', [requireAuth], (req, res) => {
   const { doctor_id, especialidad_id } = req.params;
 
   let sql = `SELECT * FROM fn_desactivar_doctor_especialidad($1, $2)`;
@@ -127,7 +128,7 @@ app.delete('/:id', (req, res) => {
       });
 });
 
-app.get('', (req, res) => {
+app.get('', [requireAuth],(req, res) => {
   let sql = `SELECT doctor_id, especialidad_id, estado, fecha_borrado::date fecha_borrado FROM tbl_doctor_especialidades WHERE estado = true`;
 
   db.any(sql)

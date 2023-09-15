@@ -1,8 +1,9 @@
 const express = require('express');
 const db = require('../db/conn');
 const app = express.Router();
+const requireAuth = require('../middlewares/requireAuth');
 
-app.post('/tipos_mensajes', async (req, res) => {
+app.post('/tipos_mensajes', [requireAuth], async (req, res) => {
     const { tipo, mensaje_template } = req.body;
 
     try {
@@ -15,7 +16,7 @@ app.post('/tipos_mensajes', async (req, res) => {
     }
 });
 
-app.get('/tipos_mensajes', async (req, res) => {
+app.get('/tipos_mensajes', [requireAuth], async (req, res) => {
     try {
         const tiposMensajes = await db.manyOrNone('SELECT * FROM tipos_mensajes WHERE estado = true');
         res.status(200).json(tiposMensajes);
@@ -25,7 +26,7 @@ app.get('/tipos_mensajes', async (req, res) => {
     }
 });
 
-app.get('/tipos_mensajes/:id', async (req, res) => {
+app.get('/tipos_mensajes/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -42,7 +43,7 @@ app.get('/tipos_mensajes/:id', async (req, res) => {
     }
 });
 
-app.put('/tipos_mensajes/:id', async (req, res) => {
+app.put('/tipos_mensajes/:id', [requireAuth],async (req, res) => {
     const { id } = req.params;
     const { tipo, mensaje_template } = req.body;
 
@@ -60,7 +61,7 @@ app.put('/tipos_mensajes/:id', async (req, res) => {
     }
 });
 
-app.delete('/tipos_mensajes/:id', async (req, res) => {
+app.delete('/tipos_mensajes/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
 
     try {

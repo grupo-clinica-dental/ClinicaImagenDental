@@ -1,10 +1,11 @@
 const express = require('express');
 const app = express.Router();
 const db = require ('../db/conn');
+const requireAuth = require('../middlewares/requireAuth');
 
 // Insertar citas 
 
-app.post('', async (req, res) => {
+app.post('', [requireAuth], async (req, res) => {
     const { fecha_hora, doctor_id, paciente_id, estado_id, google_calendar_event_id, ubicacion, descripcion, notas } = req.body;
 
     let mensajes = [];
@@ -69,7 +70,7 @@ app.post('', async (req, res) => {
 });
 
 // Actualizar citas activas
-app.put('/:id', async (req, res) => {
+app.put('/:id', [requireAuth],async (req, res) => {
     const { id } = req.params;
     const { fecha_hora, doctor_id, paciente_id, estado_id, google_calendar_event_id, ubicacion, descripcion, notas } = req.body;
 
@@ -130,7 +131,7 @@ app.put('/:id', async (req, res) => {
 });
 
 // Mostrar citas activas
-app.get('', (req, res) => {
+app.get('', [requireAuth], (req, res) => {
     let sql = `SELECT * FROM tbl_citas WHERE estado = true`;
 
     db.any(sql)
@@ -164,7 +165,7 @@ app.get('', (req, res) => {
 });
 
 // Mostrar citas por ID que este activa
-app.get('/:id', (req, res) => {
+app.get('/:id', [requireAuth],(req, res) => {
     const { id } = req.params;
     let sql = `SELECT * FROM tbl_citas WHERE id = $1 AND estado = true`;
 
@@ -199,7 +200,7 @@ app.get('/:id', (req, res) => {
 });
 
 // Cambiar cita a inactiva
-app.delete('/:id', async (req, res) => {
+app.delete('/:id', [requireAuth],async (req, res) => {
     const { id } = req.params;
 
     let respuestaValidacion = {

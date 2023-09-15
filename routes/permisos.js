@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express.Router();
 const db = require('../db/conn');
+const requireAuth = require('../middlewares/requireAuth');
 
 // Ruta para crear un permiso
-app.post('/', (req, res) => {
+app.post('/', [requireAuth], (req, res) => {
     const parametros = [
         req.body.rol_id,
         req.body.ruta_id,
@@ -41,7 +42,7 @@ app.post('/', (req, res) => {
 });
 
 // Ruta para actualizar un permiso
-app.put('/:id', (req, res) => {
+app.put('/:id', [requireAuth], (req, res) => {
     const idPermiso = req.params.id;
     const parametros = [
         idPermiso,
@@ -72,7 +73,7 @@ app.put('/:id', (req, res) => {
 });
 
 // Ruta para eliminar un permiso
-app.delete('/:id', (req, res) => {
+app.delete('/:id', [requireAuth], (req, res) => {
     const idPermiso = req.params.id;
 
     const sql = `SELECT * FROM fn_eliminar_permiso($1)`;
@@ -97,7 +98,7 @@ app.delete('/:id', (req, res) => {
 
 // Ruta para obtener todos los permisos activos
 // Ruta para obtener todos los permisos activos
-app.get('/', (req, res) => {
+app.get('/', [requireAuth],(req, res) => {
     const sql = 'SELECT * FROM tbl_permisos WHERE activa = true';
 
     db.any(sql)
@@ -118,7 +119,7 @@ app.get('/', (req, res) => {
         });
 });
 
-app.get('/:id', (req, res) => {
+app.get('/:id', [requireAuth], (req, res) => {
     const sql = 'SELECT * FROM tbl_permisos WHERE activa = true';
 
     db.any(sql)

@@ -3,13 +3,20 @@ const express = require('express');
 const app = express();
 
 
-app.use(function (req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-	res.setHeader('Access-Control-Allow-Credentials', true);
-	next();
-});
+if(process.env.NODE_ENV === 'development'){
+const cors = require('cors');
+app.use(cors());
+}else{
+	app.use(function (req, res, next) {
+		res.setHeader('Access-Control-Allow-Origin', '*');
+		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+		res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+		res.setHeader('Access-Control-Allow-Credentials', true);
+		next();
+	});
+}
+
+
 
 app.use(express.json());
 
@@ -25,6 +32,9 @@ app.use('/api/usuarios', usuarios);
 
 const tokens = require('./routes/tokens');
 app.use('/api/tokens', tokens);
+
+const auth = require('./routes/auth');
+app.use('/api/auth', auth);
 
 //Jorge
 const tipoMensaje = require('./routes/tipoMensaje');

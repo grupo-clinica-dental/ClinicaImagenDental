@@ -7,9 +7,11 @@ const app = express.Router();
 const db = require('../db/conn');
 // importamos el error para mostrar errores de consola
 const { error } = require('console');
+// importamos el middleware para validar el token
+const requireAuth = require('../middlewares/requireAuth');
 
 
-app.post('/', async (req, res) => {
+app.post('/', [requireAuth], async (req, res) => {
   const { nombre, email, telefono, password, secondPassword } = req.body;
 
   if (!nombre || !email || !password) {
@@ -44,7 +46,7 @@ app.post('/', async (req, res) => {
 });
 
 
-  app.get('/', async (req, res) => {
+  app.get('/', [requireAuth],async (req, res) => {
     try {
       const usuarios = await db.manyOrNone('SELECT * FROM tbl_usuarios WHERE estado = true');
       res.status(200).json(usuarios);
@@ -55,7 +57,7 @@ app.post('/', async (req, res) => {
   });
   
 
-  app.get('/:id', async (req, res) => {
+  app.get('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
   
     try {
@@ -72,7 +74,7 @@ app.post('/', async (req, res) => {
     }
   });
 
-  app.put('/:id', async (req, res) => {
+  app.put('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
     const { nombre, email, telefono, password } = req.body;
   
@@ -93,7 +95,7 @@ app.post('/', async (req, res) => {
 });
 
   
-app.delete('/:id', async (req , res) => {
+app.delete('/:id', [requireAuth], async (req , res) => {
   const { id } = req.params;
 
   try {

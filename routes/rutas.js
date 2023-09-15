@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express.Router();
 const db = require('../db/conn');
+const requireAuth = require('../middlewares/requireAuth');
 
 // Crear una ruta
-app.post('/', async (req, res) => {
+app.post('/', [requireAuth], async (req, res) => {
     try {
         const { string_ruta, activa } = req.body;
         const sql = 'SELECT * FROM fn_crear_ruta($1, $2)';
@@ -25,7 +26,7 @@ app.post('/', async (req, res) => {
 });
 
 // Actualizar una ruta
-app.put('/:id', async (req, res) => {
+app.put('/:id', [requireAuth], async (req, res) => {
     try {
         const { id } = req.params; // Obtén el ID de la URL
         const { string_ruta, activa } = req.body;
@@ -49,7 +50,7 @@ app.put('/:id', async (req, res) => {
 
 
 // Eliminar una ruta
-app.delete('/:id', async (req, res) => {
+app.delete('/:id', [requireAuth], async (req, res) => {
     try {
         const idRuta = req.params.id;
         const sql = 'SELECT * FROM fn_eliminar_ruta($1)';
@@ -74,7 +75,7 @@ app.delete('/:id', async (req, res) => {
 
 
 // Obtener todas las rutas activas con id
-app.get('/:id', async (req, res) => {
+app.get('/:id', [requireAuth],async (req, res) => {
     try {
         const id = req.params.id; // Obtén el ID de la URL
 
@@ -103,7 +104,7 @@ app.get('/:id', async (req, res) => {
 });
 
 
-app.get('/', async (req, res) => {  // Obtener todas las rutas activas
+app.get('/', [requireAuth], async (req, res) => {  // Obtener todas las rutas activas
     try {
         const sql = 'SELECT * FROM tbl_rutas WHERE activa = true'; // Cambia 'rutas' por el nombre de tu tabla
 

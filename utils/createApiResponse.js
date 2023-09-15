@@ -1,4 +1,4 @@
-export function getNewResponseApi() {
+ function getNewResponseApi() {
     return {
       data: {} ,
       errors: null,
@@ -6,4 +6,6 @@ export function getNewResponseApi() {
       succeded: false,
     };
   }
+
+  module.exports = getNewResponseApi;
   

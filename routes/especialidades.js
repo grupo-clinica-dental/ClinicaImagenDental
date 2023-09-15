@@ -2,8 +2,9 @@ const express = require('express');
 const app = express.Router();
 const db = require('../db/conn');
 const e = require('express');
+const requireAuth = require('../middlewares/requireAuth');
 
-app.get('', (req, res) => {
+app.get('', [requireAuth], (req, res) => {
 
     let sql = `SELECT * FROM tbl_especialidades WHERE activo = true `;
 
@@ -25,7 +26,7 @@ app.get('', (req, res) => {
 
 });
 
-app.post('', (req, res) => {
+app.post('', [requireAuth],(req, res) => {
 
     const parametros = [
 
@@ -79,7 +80,7 @@ app.post('', (req, res) => {
 
 });
 
-app.put('/:id', (req, res) => {
+app.put('/:id', [requireAuth], (req, res) => {
 
 
     const parametros = [
@@ -130,7 +131,7 @@ app.put('/:id', (req, res) => {
 
 });
 
-app.delete('/:id', (req, res) => {
+app.delete('/:id', [requireAuth], (req, res) => {
 
 
     const parametros = [

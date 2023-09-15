@@ -1,13 +1,13 @@
 const express = require('express');
 const app = express.Router();
 const db = require("../db/conn");
-
+const requireAuth = require("../middlewares/requireAuth");
 
 
 
 
   // OBTENER TODOS LOS ESTADOS DE LAS CITAS
-  app.get('/', async (req, res) => {
+  app.get('/', [requireAuth], async (req, res) => {
     try {
 
       const estadoCita = await db.manyOrNone('SELECT * FROM tbl_estados_cita');
@@ -45,7 +45,7 @@ app.post("/", async (req, res) => {
 });
 
 // ACTUALIZAR estadoCita
-app.put("/:id", async (req, res) => {
+app.put("/:id", [requireAuth], async (req, res) => {
   const { id } = req.params;
   const { estado} = req.body;
 
@@ -71,7 +71,7 @@ app.put("/:id", async (req, res) => {
   }
 });
 // Desactivar estadoCita
-app.delete("/:id", async (req, res) => {
+app.delete("/:id", [requireAuth], async (req, res) => {
   const {id } = req.params;
   try {
     await db.result(
