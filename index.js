@@ -77,5 +77,12 @@ const archivos = require('./routes/archivos');
 app.use('/api/archivos',archivos );
 
 
-
-app.listen(3000);
+if(process.env.NODE_ENV !== 'development'){
+app.listen(process.env.PORT, () => {
+	console.log(`Servidor corriendo en modo produccion en el puerto ${process.env.PORT}`);
+});
+}else{
+	app.listen(3000, () => {
+		console.log(`Servidor corriendo en modo desarrollo en el puerto ${3000}`);
+	});
+}
