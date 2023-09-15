@@ -6,11 +6,18 @@ const password = process.env.DB_PASSWORD;
 const host = process.env.DB_HOST;
 const port = process.env.DB_PORT;
 const database = process.env.DB_NAME;
+const conexion = process.env.CONEXION;
+
+const options = {
+  ssl: {
+    rejectUnauthorized: false,
+  },
+}
 
 
-const cn = `postgresql://${user}:${password}@${host}:${port}/${database}`;
+const cn = conexion ? conexion :  `postgresql://${user}:${password}@${host}:${port}/${database}`;
 
-const db = pgp(cn);
+const db = pgp({connectionString: cn, ...options});
 
 db.connect()
   .then(() => {
