@@ -51,7 +51,9 @@ const loginHandler = async (req, res) => {
       rol: user.rol,
     };
 
-    const token = jwt.sign(tokenPayload, "secret", {
+    const TOKENSECRET = process.env.TOKENSECRET;
+
+    const token = jwt.sign(tokenPayload, TOKENSECRET, {
       expiresIn: 60 * 60 * 24,
     });
 

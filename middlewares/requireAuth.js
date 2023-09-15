@@ -32,7 +32,6 @@ const response = getNewResponseApi()
 
   // si solo viene el bearer sin el token no pasara
 
-    console.log(process.env.TOKENSECRET)
 
   jwt.verify(token, process.env.TOKENSECRET, (err, user) => {
     if (err)
