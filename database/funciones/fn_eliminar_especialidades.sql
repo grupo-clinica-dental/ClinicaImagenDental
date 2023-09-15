@@ -8,27 +8,38 @@ AS $$
 DECLARE
     v_exito bool := true;
     v_mensaje varchar(1000);
+    v_registro_existente int;
 BEGIN
-    v_mensaje := 'Error en actualizar de usuario ' || p_id;
+    -- Verificar si la especialidad existe
+    SELECT COUNT(*) INTO v_registro_existente FROM tbl_especialidades WHERE id = p_id;
+    
+    IF v_registro_existente = 0 THEN
+        v_mensaje := 'La especialidad con ID ' || p_id || ' no existe';
+        v_exito := false;
+        RETURN QUERY SELECT v_exito, v_mensaje, NULL;
+    END IF;
 
-    UPDATE tbl_especialidades SET activo = 'FALSE' WHERE id = p_id;
-
-    v_mensaje := 'Error en la inserción del log';
-
+    -- Intento de eliminar (desactivar) la especialidad
+    UPDATE tbl_especialidades 
+    SET activo = 'FALSE' 
+    WHERE id = p_id;
+    
+    -- Registro de la acción en el log
     INSERT INTO tbl_log_de_acciones (descripcion)
-    VALUES ('Se actualizó el usuario ' || p_id);
+    VALUES ('Se ha desactivado la especialidad con ID ' || p_id);
 
-    v_mensaje := 'Operación Exitosa';
+    v_mensaje := 'Operación exitosa: se ha desactivado la especialidad con ID ' || p_id;
     RETURN QUERY SELECT v_exito, v_mensaje, p_id::varchar;
 
 EXCEPTION
     WHEN OTHERS THEN
+        -- En caso de error, registro en el log de errores
         INSERT INTO tbl_log_errores (descripcion, proceso)
-        VALUES (v_mensaje || ' - ' || SQLERRM, 'fn_eliminar_especialidades');
-
+        VALUES ('Error al desactivar la especialidad: ' || SQLERRM, 'fn_eliminar_especialidades');
+        
         v_exito := false;
-        v_mensaje := 'Operación Errónea - ' || SQLERRM;
-
+        v_mensaje := 'Operación errónea: ' || SQLERRM;
+        
         RETURN QUERY SELECT v_exito, v_mensaje, p_id::varchar;
 END;
 $$ LANGUAGE plpgsql;

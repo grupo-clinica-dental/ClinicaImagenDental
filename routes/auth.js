@@ -1,8 +1,10 @@
-import jwt from "jsonwebtoken";
-import pool from "../../database";
-import { getNewResponseApi } from "../utils/createApiResponse";
+const express = require('express');
+const app = express.Router();
+const db = require('../db/conn');
+const jwt = require('jsonwebtoken');
+const  getNewResponseApi  = require('./../utils/createApiResponse');
 
-export const loginHandler = async (req, res) => {
+app.post('/login', async (req, res) => {
   const response = getNewResponseApi();
 
   try {
@@ -14,23 +16,22 @@ export const loginHandler = async (req, res) => {
       INNER JOIN tbl_roles r ON u.id_rol = r.id
       WHERE u.email = $1`;
     const values = [email];
-    const result = await pool.query(query, values);
+    
+    const result = await db.any(query, values);
 
-    if (result.rows.length <= 0) {
+    if (result.length <= 0) {
       return res
         .status(401)
         .json({ ...response, message: "No Autorizado para obtener el perfil" });
     }
 
-    const user = result.rows[0];
-    // Verifica la contraseña (asumiendo que es en texto plano, lo cual no es seguro. Deberías cifrarla.)
+    const user = result[0];
     if (user.password !== password) {
       return res
         .status(401)
         .json({ ...response, message: "Contraseña incorrecta" });
     }
 
-    // Crear el payload del token sin incluir la contraseña
     const tokenPayload = {
       id: user.id,
       email: user.email,
@@ -40,7 +41,7 @@ export const loginHandler = async (req, res) => {
       rol: user.rol,
     };
 
-    const token = jwt.sign(tokenPayload, "secret", {
+    const token = jwt.sign(tokenPayload, process.env.TOKENSECRET, {
       expiresIn: 60 * 60 * 24,
     });
 
@@ -57,4 +58,6 @@ export const loginHandler = async (req, res) => {
       message: "Problema en el autenticar en el lado del servidor",
     });
   }
-};
+});
+
+module.exports = app;

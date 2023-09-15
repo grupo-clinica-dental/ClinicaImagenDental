@@ -9,28 +9,37 @@ AS $$
 DECLARE
     v_exito BOOL := true;
     v_mensaje VARCHAR(1000);
-
+    v_registro_existente int;
 BEGIN
-    v_mensaje := 'Error al desactivar el paciente con ID ' || p_id;
+    -- Verificar si el paciente existe
+    SELECT COUNT(*) INTO v_registro_existente FROM tbl_pacientes WHERE id = p_id;
+    
+    IF v_registro_existente = 0 THEN
+        v_mensaje := 'El paciente con ID ' || p_id || ' no existe';
+        v_exito := false;
+        RETURN QUERY SELECT v_exito, v_mensaje, NULL;
+    END IF;
 
+    -- Intentar desactivar el paciente
     UPDATE tbl_pacientes 
     SET estado = false
     WHERE id = p_id;
 
-    v_mensaje := 'Error en la inserción del log';
-
+    -- Registrar la acción
     INSERT INTO tbl_log_de_acciones(descripcion)
     VALUES ('Se desactivó el paciente con ID ' || p_id);
 
-    v_mensaje := 'Operación Exitosa';
+    -- Configurar mensaje de éxito
+    v_mensaje := 'Operación Exitosa: Paciente desactivado con ID ' || p_id;
     RETURN QUERY SELECT v_exito, v_mensaje, p_id;
 
 EXCEPTION WHEN OTHERS THEN
+    -- En caso de error, registrar en tbl_log_errores
     INSERT INTO tbl_log_errores(descripcion, proceso)
-    VALUES (v_mensaje || ' - ' || SQLERRM, 'fn_desactivar_paciente');
+    VALUES ('Error al desactivar el paciente: ' || SQLERRM, 'fn_desactivar_paciente');
 
     v_exito := false;
-    v_mensaje := 'Operación Erronea - ' || SQLERRM;
+    v_mensaje := 'Operación Errónea: ' || SQLERRM;
 
     RETURN QUERY SELECT v_exito, v_mensaje, p_id;
 END;

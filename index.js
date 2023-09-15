@@ -6,8 +6,11 @@ app.use(express.json());
 app.use(cors());
 
 
-
 // Keven
+
+const auth = require('./routes/auth');
+app.use('/api/auth', auth);
+
 const roles = require('./routes/roles');
 app.use('/api/roles', roles);
 
@@ -45,8 +48,8 @@ app.use('/api/especialidades', especialidades);
 const estadoCita = require('./routes/estadoCita');
 app.use('/api/estadoCita', estadoCita);
 
-/*const doctoresEspecialidades = require('./routes/doctoresEspecialidades');
-app.use('/api/doctoresEspecialidades', doctoresEspecialidades);*/
+const doctoresEspecialidades = require('./routes/doctoresEspecialidades');
+app.use('/api/doctoresEspecialidades', doctoresEspecialidades);
 
 //David 
 
@@ -59,6 +62,8 @@ app.use('/api/permisos', permisos)
 const archivos = require('./routes/archivos');
 app.use('/api/archivos',archivos );
 
+const PORT = process.env.NODE_ENV === 'development' ? 3000 : process.env.PORT ;
 
-
-app.listen(3000);
+app.listen(PORT, () => {
+    console.log(`Aplicacion corriendo en: http://localhost:${PORT}/api`)
+});

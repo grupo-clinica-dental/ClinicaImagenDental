@@ -12,7 +12,7 @@ const db = require("../db/conn");
 
       const estadoCita = await db.manyOrNone('SELECT * FROM tbl_estados_cita');
   
-      res.status(200).json(estadoCita);
+      res.status(200).json({data: estadoCita});
     } catch (err) {
 
       console.error({ERROR: err, RUTA: '/estadoCita', METODO: 'GET'});
@@ -24,12 +24,12 @@ const db = require("../db/conn");
 
 // INGRESAR NUEVO estadoCita
 app.post("/", async (req, res) => {
-  const { estado, activo, fecha_borrado } = req.body;
+  const { estado, activo } = req.body;
 
   try {
     await db.none(
-      "INSERT INTO  tbl_estados_cita (estado, activo, fecha_borrado) VALUES ($1, $2, $3)",
-      [ estado, activo, fecha_borrado]
+      "INSERT INTO  tbl_estados_cita (estado, activo) VALUES ($1, $2)",
+      [ estado, activo]
     );
 
     res
