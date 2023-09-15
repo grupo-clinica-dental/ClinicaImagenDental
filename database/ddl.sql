@@ -23,7 +23,8 @@ CREATE TABLE
         password VARCHAR(255) NOT NULL,
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         estado BOOLEAN DEFAULT TRUE,
-        fecha_borra TIMESTAMP
+        fecha_borra TIMESTAMP,
+        rol_id INTEGER NOT NULL REFERENCES tbl_roles(id)
     );
 
 drop table if EXISTS tbl_tokens cascade;
@@ -186,8 +187,3 @@ CREATE TABLE
     );    
 
 
-select  a.nombre_archivo, 
-        a.mime_type, 
-        encode(a.archivo, 'base64')  as archivo 
-from    tbl_archivos a 
-where   a.id =  '8'

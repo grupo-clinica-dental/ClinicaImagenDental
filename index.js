@@ -2,20 +2,17 @@ const express = require('express');
  require('dotenv').config();
 const app = express();
 
-
-if(process.env.NODE_ENV === 'development'){
 const cors = require('cors');
-app.use(cors());
-}else{
-	app.use(function (req, res, next) {
-		res.setHeader('Access-Control-Allow-Origin', '*');
-		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-		res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-		res.setHeader('Access-Control-Allow-Credentials', true);
-		next();
-	});
-}
 
+app.use(cors());
+
+app.use(function (req, res, next) {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+	res.setHeader('Access-Control-Allow-Credentials', true);
+	next();
+});
 
 
 app.use(express.json());

@@ -12,7 +12,7 @@ function requireAuth  (
 const response = getNewResponseApi()
 
   // debe ir en los headers de la solicitud
-
+console.log(authHeader)
 
   if (!authHeader)
     return res.status(401).json({
