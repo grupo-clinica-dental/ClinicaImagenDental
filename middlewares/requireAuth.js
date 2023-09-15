@@ -12,7 +12,6 @@ function requireAuth  (
 const response = getNewResponseApi()
 
   // debe ir en los headers de la solicitud
-console.log(authHeader)
 
   if (!authHeader)
     return res.status(401).json({
@@ -24,6 +23,7 @@ console.log(authHeader)
 
   // headers AUTHORIZATION = 'Bearer laksfhjasklfa564'
 
+
   if (!token)
     return res.status(401).json({
       ...response,
@@ -31,6 +31,8 @@ console.log(authHeader)
     });
 
   // si solo viene el bearer sin el token no pasara
+
+    console.log(process.env.TOKENSECRET)
 
   jwt.verify(token, process.env.TOKENSECRET, (err, user) => {
     if (err)
