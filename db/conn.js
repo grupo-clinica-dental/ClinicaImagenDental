@@ -15,9 +15,13 @@ const options = {
 }
 
 
-const cn = conexion ? conexion :  `postgresql://${user}:${password}@${host}:${port}/${database}`;
+const cn = process.env.NODE_ENV !== 'development' ? conexion :  `postgresql://${user}:${password}@${host}:${port}/${database}`;
 
-const db = pgp({connectionString: cn, ...options});
+const getConnectionAccordingToEnvironment = () => {
+    return process.env.NODE_ENV !== 'development' ? {connectionString: cn, ...options} : `postgresql://${user}:${password}@${host}:${port}/${database}`;
+}
+
+const db = pgp(getConnectionAccordingToEnvironment());
 
 db.connect()
   .then(() => {
