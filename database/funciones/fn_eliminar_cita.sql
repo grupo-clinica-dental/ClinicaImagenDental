@@ -1,3 +1,4 @@
+-- Active: 1690920567382@@localhost@5432@clinica_dental
 CREATE OR REPLACE FUNCTION fn_desactivar_cita(p_id INT)
 RETURNS TABLE
 (
