@@ -79,16 +79,18 @@ app.post('/', [requireAuth], async (req, res) => {
 
   app.put('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
-    const { nombre, email, telefono, password } = req.body;
+    const { nombre, email, telefono, password, rol_id } = req.body;
   
     try {
         // Llamada a la función de PostgreSQL para actualizar el usuario
-        const result = await db.query('SELECT * FROM fn_actualizar_usuario($1, $2, $3, $4, $5)', [id, nombre, email, telefono, password]);
+        const result = await db.query('SELECT * FROM FN_ACTUALIZAR_USUARIO($1, $2, $3, $4, $5, $6)', [id, nombre, email, telefono, password, rol_id]);
 
-        if (result.rows[0].exito) {
-            return res.status(200).json({ message: result.rows[0].mensaje });
+        console.log(result)
+
+        if (result[0].exito) {
+            return res.status(200).json({ message: result[0].mensaje });
         } else {
-            return res.status(404).json({ message: result.rows[0].mensaje });
+            return res.status(404).json({ message: result[0].mensaje });
         }
 
     } catch (err) {
@@ -105,10 +107,10 @@ app.delete('/:id', [requireAuth], async (req , res) => {
       // Llamada a la función de PostgreSQL para desactivar el usuario
       const result = await db.query('SELECT * FROM fn_desactivar_usuario($1)', [id]);
 
-      if (result.rows[0].exito) {
-          return res.status(200).json({ message: result.rows[0].mensaje });
+      if (result.exito) {
+          return res.status(200).json({ message: result.mensaje });
       } else {
-          return res.status(404).json({ message: result.rows[0].mensaje });
+          return res.status(404).json({ message: result.mensaje });
       }
 
   } catch (err) {
