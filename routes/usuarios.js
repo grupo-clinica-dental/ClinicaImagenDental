@@ -14,6 +14,9 @@ const requireAuth = require('../middlewares/requireAuth');
 app.post('/', [requireAuth], async (req, res) => {
   const { nombre, email, telefono, password, secondPassword } = req.body;
 
+  const rol = 1
+
+
   if (!nombre || !email || !password) {
       return res.status(400).json({ message: 'Nombre, email y password son requeridos' });
   }
@@ -29,7 +32,7 @@ app.post('/', [requireAuth], async (req, res) => {
   }
 
   try {
-      const result = await db.query('SELECT * FROM fn_crear_usuario($1, $2, $3, $4)', [nombre, email, telefono, password]);
+      const result = await db.query('SELECT * FROM fn_crear_usuario($1, $2, $3, $4, $5)', [nombre, email, telefono, password, rol]);
 
       console.log(result[0])
 
