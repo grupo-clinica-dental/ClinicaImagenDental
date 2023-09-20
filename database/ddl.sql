@@ -1,4 +1,4 @@
--- Active: 1690920567382@@localhost@5432@clinica_dental
+-- Active: 1694994035989@@dpg-ck0g4m36fquc73dn3cug-a.oregon-postgres.render.com@5432@base_imagen_dental
 
 create database clinica_dental;
 

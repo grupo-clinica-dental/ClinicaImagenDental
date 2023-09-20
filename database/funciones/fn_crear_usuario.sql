@@ -1,8 +1,7 @@
-CREATE OR REPLACE FUNCTION FN_CREAR_USUARIO(P_NOMBRE 
-VARCHAR(100), P_EMAIL VARCHAR(100), P_TELEFONO VARCHAR
-(15), P_PASSWORD VARCHAR(255)) RETURNS TABLE(EXITO 
-BOOLEAN, MENSAJE VARCHAR(1000), ID_REGISTRO INT) AS 
-	$$ DECLARE v_exito BOOLEAN := TRUE;
+CREATE OR REPLACE FUNCTION public.fn_crear_usuario(p_nombre character varying, p_email character varying, p_telefono character varying, p_password character varying, p_rol_id integer)
+ RETURNS TABLE(exito boolean, mensaje character varying, id_registro integer)
+ LANGUAGE plpgsql
+AS $function$ DECLARE v_exito BOOLEAN := TRUE;
 	v_mensaje VARCHAR(1000);
 	v_id int;
 	BEGIN -- Tu lógica aquí
@@ -11,13 +10,15 @@ BOOLEAN, MENSAJE VARCHAR(1000), ID_REGISTRO INT) AS
 	        nombre,
 	        email,
 	        telefono,
-	        password
+	        password,
+            rol_id
 	    )
 	VALUES (
 	        p_nombre,
 	        p_email,
 	        p_telefono,
-	        p_password
+	        p_password,
+            p_rol_id
 	    )
 	RETURNING id INTO v_id;
 	INSERT INTO
@@ -37,6 +38,6 @@ BOOLEAN, MENSAJE VARCHAR(1000), ID_REGISTRO INT) AS
 	    );
 	v_exito := FALSE;
 	v_mensaje := 'Error al crear el usuario: ' || SQLERRM;
-	RETURN QUERY SELECT v_exito, v_mensaje, NULL;
+	RETURN QUERY SELECT v_exito, v_mensaje, -1;
 	END;
-	$$ LANGUAGE plpgsql;
+	$function$

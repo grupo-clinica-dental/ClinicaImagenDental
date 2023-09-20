@@ -1,7 +1,6 @@
 CREATE OR REPLACE FUNCTION FN_DESACTIVAR_USUARIO(P_ID 
 INT) RETURNS TABLE(EXITO BOOL, MENSAJE VARCHAR(1000
 )) AS $$ 
-	$$ 
 	DECLARE v_exito bool := true;
 	v_mensaje varchar(1000);
 	v_cantidad_actualizados int;

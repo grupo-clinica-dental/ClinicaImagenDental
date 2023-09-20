@@ -200,7 +200,7 @@ app.get('/:id', [requireAuth],(req, res) => {
 });
 
 // Cambiar cita a inactiva
-app.delete('/:id', [requireAuth],async (req, res) => {
+app.delete('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
 
     let respuestaValidacion = {
@@ -209,24 +209,25 @@ app.delete('/:id', [requireAuth],async (req, res) => {
         excepcion: ""
     };
 
-    let sql = `SELECT * FROM fn_desactivar_cita($1)`;
+    let sql = `SELECT * FROM fn_delete_doctor_especialidad($1)`;
 
     try {
         const data = await db.any(sql, [id]);
 
         if (!data[0].exito) {
-            return res.status(404).json({message: 'Cita no encontrada'});
+            return res.status(404).json({message: 'Doctor Especialidad no encontrado'});
         }
 
-        respuestaValidacion.mensaje.push("Cita desactivada exitosamente");
+        respuestaValidacion.mensaje.push("Doctor Especialidad eliminado exitosamente");
         res.status(200).json(respuestaValidacion);
     } catch (error) {
-        respuestaValidacion.mensaje.push("Error al desactivar la cita");
+        respuestaValidacion.mensaje.push("Error al eliminar el Doctor Especialidad");
         respuestaValidacion.excepcion = error.message;
         respuestaValidacion.exito = false;
         res.status(500).json(respuestaValidacion);
     }
 });
+
 
 
 module.exports = app;

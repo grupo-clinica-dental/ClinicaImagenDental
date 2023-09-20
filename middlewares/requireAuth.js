@@ -13,6 +13,9 @@ const response = getNewResponseApi()
 
   // debe ir en los headers de la solicitud
 
+  // console.log(authHeader)
+
+
   if (!authHeader)
     return res.status(401).json({
       ...response,
@@ -22,6 +25,7 @@ const response = getNewResponseApi()
   const token = authHeader.split(" ")[1];
 
   // headers AUTHORIZATION = 'Bearer laksfhjasklfa564'
+
 
 
   if (!token)
