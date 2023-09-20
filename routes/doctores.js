@@ -25,57 +25,55 @@ app.get('', [requireAuth], (req, res) => {
 
 });
 
-app.post('', [requireAuth], (req, res) => {
+app.post('', [requireAuth], async (req, res) => {
 
-    const parametros = [
-        req.body.nombre,
-        req.body.correo_electronico,
-        req.body.color
+    // const parametros = [
+    //     req.body.nombre,
+    //     req.body.correo_electronico,
+    //     req.body.color
+    // ];
 
-    ];
 
-    let sql = `  SELECT * FROM fn_crear_doctores($1, $2, $3)`;
+    const { nombre, correo_electronico, color, especialidadId } = req.body;
 
-    let mensajes = new Array();
-    let bandera = true;
 
-    let respuestaValidacion = {
-
-        exito: bandera,
-        mensaje: mensajes,
-        excepcion: "",
-        item_rol: ""
-
-    };
-    if (respuestaValidacion === false) {
-        res.status(500).json(respuestaValidacion);
-    } else {
-        db.one(sql, parametros, event => event.id)
-        .then(data => {
-
-            const objetoCreado = {
-
-                id: data,
-                nombre: req.body.nombre,
-                correo_electronico: req.body.correo_electronico,
-                color: req.body.color
-
-            }
-            respuestaValidacion.mensaje.push("Operación Exitosa");
-            respuestaValidacion.item_rol = objetoCreado;
-            res.json(objetoCreado);
-
-        })
-        .catch((error) => {
-            respuestaValidacion.mensaje.push("Operación Erronea");
-            respuestaValidacion.excepcion = error.message;
-            respuestaValidacion.exito = false;
-            res.status(500).json(error);
-        }
-        );
+    if(!especialidadId){
+        return res.status(400).json({ message: 'Especialidad es requerida' });
     }
 
-    
+    if(!nombre || !correo_electronico || !color){
+        return res.status(400).json({ message: 'Nombre, correo electrónico y color son requeridos' });
+    }
+
+    try {
+
+        const checkIfDoctorNameExist = await db.query('SELECT * FROM tbl_doctores WHERE nombre = $1', [nombre]);
+
+        if(checkIfDoctorNameExist.length > 0){
+            return res.status(400).json({ message: 'El nombre del doctor ya existe.' });
+        }
+
+
+        const result = await db.query('SELECT * FROM fn_crear_doctores($1, $2, $3)', [nombre, correo_electronico, color]);
+
+        const doctocCreado = result[0].id_registro;
+
+        if(!result[0].exito){
+            return res.status(500).json({ message: 'Hubo un error al crear el doctor' });
+        }
+
+            const result2 = await db.query('SELECT * FROM fn_crear_doctor_especialidad($1, $2)', [doctocCreado, especialidadId]);
+
+            if(!result2[0].exito){
+                return res.status(500).json({ message: 'Hubo un error al crear el doctor' });
+            }
+
+            return res.status(201).json({ message: 'Doctor Creado con exito', data: result[0].id_registro });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Error al crear el doctor' });
+    } 
 
 });
 
