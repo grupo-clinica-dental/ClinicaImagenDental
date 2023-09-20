@@ -107,10 +107,12 @@ app.delete('/:id', [requireAuth], async (req , res) => {
       // Llamada a la función de PostgreSQL para desactivar el usuario
       const result = await db.query('SELECT * FROM fn_desactivar_usuario($1)', [id]);
 
-      if (result.exito) {
-          return res.status(200).json({ message: result.mensaje });
+      console.log(result)
+
+      if (result[0].exito) {
+          return res.status(200).json({ message: result[0].mensaje });
       } else {
-          return res.status(404).json({ message: result.mensaje });
+          return res.status(404).json({ message: result[0].mensaje });
       }
 
   } catch (err) {
