@@ -6,10 +6,10 @@ const requireAuth = require('../middlewares/requireAuth');
 // Crear una ruta
 app.post('/', [requireAuth], async (req, res) => {
     try {
-        const { string_ruta, activa } = req.body;
+        const { string_ruta: nombre_ruta, activa } = req.body;
         const sql = 'SELECT * FROM fn_crear_ruta($1, $2)';
 
-        const newRuta = await db.one(sql, [string_ruta, activa]);
+        const newRuta = await db.one(sql, [nombre_ruta, activa]);
 
         res.status(201).json({
             exito: true,
@@ -29,10 +29,10 @@ app.post('/', [requireAuth], async (req, res) => {
 app.put('/:id', [requireAuth], async (req, res) => {
     try {
         const { id } = req.params; // Obtén el ID de la URL
-        const { string_ruta, activa } = req.body;
+        const { string_ruta: nombre_ruta, activa } = req.body;
         const sql = 'SELECT * FROM fn_actualizar_ruta($1, $2, $3)';
 
-        const updatedRuta = await db.one(sql, [id, string_ruta, activa]);
+        const updatedRuta = await db.one(sql, [id, nombre_ruta, activa]);
 
         res.status(200).json({
             exito: true,

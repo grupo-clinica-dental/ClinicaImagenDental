@@ -141,9 +141,11 @@ CREATE TABLE
 drop table if EXISTS tbl_rutas cascade;
 
 CREATE TABLE IF NOT EXISTS tbl_rutas (
-    id SERIAL PRIMARY KEY,
-    string_ruta VARCHAR(255) NOT NULL
+    id serial PRIMARY KEY,
+    nombre_ruta VARCHAR(255) NOT NULL,
+    activa BOOLEAN NOT NULL,
 );
+
 
 drop table if EXISTS tbl_permisos CASCADE;
 
