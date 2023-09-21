@@ -3,26 +3,19 @@ const app = express.Router();
 const db = require('../db/conn');
 const requireAuth = require('../middlewares/requireAuth');
 
-app.get('', [requireAuth], (req, res) => {
+app.get('', [requireAuth], async (req, res) => {
+    try {
+        const sql = 'SELECT * FROM tbl_doctores WHERE estado = true';
+        const rows = await db.any(sql);
 
-    let sql = `SELECT * FROM tbl_doctores WHERE estado = true `;
-
-    db.any(sql, e => e.id)
-
-        .then(row => {
-
-
-            if (row.length === 0) {
-                res.status(404).json({ mensaje: "Sin datos" })
-            } else {
-                res.json(row);
-            }
-
-        })
-        .catch((error) => {
-            res.status(500).json(error);
-        });
-
+        if (rows.length === 0) {
+            res.status(404).json({ mensaje: 'Sin datos' });
+        } else {
+            res.json(rows);
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Error en la consulta' });
+    }
 });
 
 app.post('', [requireAuth], async (req, res) => {
