@@ -5,18 +5,56 @@ const requireAuth = require('../middlewares/requireAuth');
 
 app.get('', [requireAuth], async (req, res) => {
     try {
-        const sql = 'SELECT d.id AS doctor_id, d.nombre AS doctor_name, d.correo_electronico AS doctor_email, d.color AS doctor_color, e.id AS especialidad_id, e.nombre AS especialidad_name FROM tbl_doctores AS d JOIN tbl_doctor_especialidades AS de ON d.id = de.doctor_id JOIN tbl_especialidades AS e ON de.especialidad_id = e.id;';
+        const sql = `
+            SELECT
+                d.id AS doctor_id,
+                d.nombre AS doctor_name,
+                d.correo_electronico AS doctor_email,
+                d.color AS doctor_color,
+                e.id AS especialidad_id,
+                e.nombre AS especialidad_name
+            FROM tbl_doctores d
+            LEFT JOIN tbl_doctor_especialidades de ON d.id = de.doctor_id
+            LEFT JOIN tbl_especialidades e ON de.especialidad_id = e.id
+            WHERE d.estado = true;
+        `;
+
         const rows = await db.any(sql);
 
-        if (rows.length === 0) {
+        const doctorsMap = {};
+
+        rows.forEach(row => {
+            if (!doctorsMap[row.doctor_id]) {
+                doctorsMap[row.doctor_id] = {
+                    doctor_id: row.doctor_id,
+                    doctor_name: row.doctor_name,
+                    doctor_email: row.doctor_email,
+                    doctor_color: row.doctor_color,
+                    especialidades: []
+                };
+            }
+
+            if(row.especialidad_id) { // Verifica si la especialidad_id no es NULL
+                doctorsMap[row.doctor_id].especialidades.push({
+                    especialidad_id: row.especialidad_id,
+                    especialidad_name: row.especialidad_name
+                });
+            }
+        });
+
+        const doctorsList = Object.values(doctorsMap);
+
+        if (doctorsList.length === 0) {
             res.status(404).json({ mensaje: 'No se encontraron datos' });
         } else {
-            res.json(rows);
+            res.json(doctorsList);
         }
+
     } catch (error) {
         res.status(500).json({ error: 'Error en la consulta' });
     }
 });
+
 
 
 app.post('', [requireAuth], async (req, res) => {
@@ -71,93 +109,91 @@ app.post('', [requireAuth], async (req, res) => {
 
 });
 
-app.put('/:id', [requireAuth], (req, res) => {
-
-
-    const parametros = [
-
-        req.body.nombre,
-        req.body.correo_electronico,
-        req.body.color,
-        req.params.id
-
-    ];
+app.put('/:id', [requireAuth], async (req, res) => {
 
     const { nombre, correo_electronico, color, nuevaEspecialidad, especialidadVieja } = req.body;
-
-    let sql = ` SELECT * FROM fn_actualizar_doctores ($1, $2, $3, $4) `;
-
-    let mensajes = new Array();
+    const doctorId = req.params.id;
 
     let respuestaValidacion = {
-
         exito: true,
-        mensaje: mensajes,
+        mensaje: [],
         excepcion: "",
-        item_rol: ""
-
+        item_rol: {}
     };
 
-    db.result(sql, parametros, r => r.rowCount)
-        .then(data => {
+    try {
+        // 1. Actualizar la información del doctor
+        const sqlUpdateDoctor = `
+            UPDATE tbl_doctores 
+            SET nombre = $1, correo_electronico = $2, color = $3
+            WHERE id = $4
+        `;
+        await db.none(sqlUpdateDoctor, [nombre, correo_electronico, color, doctorId]);
 
-            const objetoMod = {
-
-                id: req.params.id,
-                nombre: req.body.nombre,
-                correo_electronico: req.body.correo_electronico,
-                color: req.body.color,
-
-
-            }
-
-            respuestaValidacion.mensaje = "Operación Exitosa";
-            respuestaValidacion.item_rol = objetoMod;
-            res.json(respuestaValidacion);
-
-        })
-        .catch((error) => {
-
-            respuestaValidacion.exito = false;
-            respuestaValidacion.mensaje.push("Operación Erronea");
-            respuestaValidacion.excepcion = error.message;
-            res.status(500).json(error);
-
+        // 2. Si hay información sobre una nueva especialidad, añadirla
+        if (nuevaEspecialidad) {
+            const sqlInsertEspecialidad = `
+                INSERT INTO tbl_doctor_especialidades (doctor_id, especialidad_id)
+                VALUES ($1, $2)
+            `;
+            await db.none(sqlInsertEspecialidad, [doctorId, nuevaEspecialidad]);
         }
-        );
 
+        // 3. Si hay información sobre una especialidad vieja, eliminarla
+        if (especialidadVieja) {
+            const sqlDeleteEspecialidad = `
+                DELETE FROM tbl_doctor_especialidades
+                WHERE doctor_id = $1 AND especialidad_id = $2
+            `;
+            await db.none(sqlDeleteEspecialidad, [doctorId, especialidadVieja]);
+        }
+
+        respuestaValidacion.mensaje.push("Operación Exitosa");
+        respuestaValidacion.item_rol = {
+            id: doctorId,
+            nombre,
+            correo_electronico,
+            color
+        };
+        res.json(respuestaValidacion);
+    } 
+    catch (error) {
+        respuestaValidacion.exito = false;
+        respuestaValidacion.mensaje.push("Operación Erronea");
+        respuestaValidacion.excepcion = error.message;
+        res.status(500).json(respuestaValidacion);
+    }
 });
+
 
 app.delete('/:id', [requireAuth], (req, res) => {
 
+    const doctorId = req.params.id;
 
-    const parametros = [
-
-        req.params.id
-
-    ];
-
-    let sql = ` SELECT * FROM fn_eliminar_doctores($1) `;
+    const sql = `UPDATE tbl_doctores SET estado = false WHERE id = $1`;
 
     let mensajes = new Array();
 
     let respuestaValidacion = {
-
         exito: true,
         mensaje: mensajes,
         excepcion: "",
         item_rol: ""
-
     };
 
-    db.result(sql, parametros, r => r.rowCount)
+    db.result(sql, [doctorId], r => r.rowCount)
         .then(data => {
 
-            const objetoMod = {
+            if(data === 0) {
+                // No se actualizó ningún registro, posiblemente el ID no existía
+                respuestaValidacion.exito = false;
+                respuestaValidacion.mensaje.push("Doctor no encontrado");
+                res.status(404).json(respuestaValidacion);
+                return;
+            }
 
-                id: req.params.id,
-                fecha_borrado: req.body.fecha_borrado,
-                color: req.body.color,
+            const objetoMod = {
+                id: doctorId,
                 estado: false
             }
 
@@ -167,15 +203,11 @@ app.delete('/:id', [requireAuth], (req, res) => {
 
         })
         .catch((error) => {
-
             respuestaValidacion.exito = false;
             respuestaValidacion.mensaje.push("Operación Erronea");
             respuestaValidacion.excepcion = error.message;
-            res.status(500).json(error);
-
-        }
-        );
-
+            res.status(500).json(respuestaValidacion);
+        });
 });
 
 
