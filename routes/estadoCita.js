@@ -21,6 +21,21 @@ const requireAuth = require("../middlewares/requireAuth");
     }
   });
 
+ // OBTENER TODOS LOS ESTADOS POR ID DE LAS CITAS
+  app.get('/:id', [requireAuth], async (req, res) => {
+    try {
+
+      const estadoCita = await db.manyOrNone('SELECT * FROM tbl_estados_cita');
+  
+      res.status(200).json(estadoCita);
+    } catch (err) {
+
+      console.error({ERROR: err, RUTA: '/estadoCita', METODO: 'GET'});
+      
+      res.status(500).json({message: 'Error al obtener los estadoCita'});
+    }
+  });
+
 
 // INGRESAR NUEVO estadoCita
 app.post("/", async (req, res) => {
