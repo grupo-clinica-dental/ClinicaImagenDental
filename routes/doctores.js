@@ -9,7 +9,7 @@ app.get('', [requireAuth], async (req, res) => {
         const rows = await db.any(sql);
 
         if (rows.length === 0) {
-            res.status(404).json({ mensaje: 'Sin datos' });
+            res.status(404).json({ mensaje: 'No se encontraron datos' });
         } else {
             res.json(rows);
         }
@@ -17,6 +17,7 @@ app.get('', [requireAuth], async (req, res) => {
         res.status(500).json({ error: 'Error en la consulta' });
     }
 });
+
 
 app.post('', [requireAuth], async (req, res) => {
 
