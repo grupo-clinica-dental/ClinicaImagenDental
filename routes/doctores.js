@@ -56,11 +56,7 @@ app.post('', [requireAuth], async (req, res) => {
             return res.status(500).json({ message: 'Hubo un error al crear el doctor' });
         }
 
-<<<<<<< Updated upstream
-        const result2 = await db.query('SELECT * FROM fn_crear_doctor_especialidad($1, $2)', [doctocCreado, especialidadId]);
-=======
             const result2 = await db.query('SELECT * FROM fn_crear_doctor_especialidad($1, $2)', [parseInt(doctocCreado), parseInt(especialidadId)]);
->>>>>>> Stashed changes
 
         if (!result2[0].exito) {
             return res.status(500).json({ message: 'Hubo un error al crear el doctor' });
