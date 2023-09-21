@@ -101,13 +101,13 @@ drop table if EXISTS tbl_citas CASCADE;
 CREATE TABLE
     tbl_citas (
         id SERIAL PRIMARY KEY,
-        fecha_hora TIMESTAMP NOT NULL,
+        fecha_inicio TIMESTAMP NOT NULL,
+        fecha_fin TIMESTAMP NOT NULL,
         doctor_id INTEGER NOT NULL REFERENCES tbl_doctores(id),
         paciente_id INTEGER NOT NULL REFERENCES tbl_pacientes(id),
-        estado_id INTEGER NOT NULL REFERENCES tbl_estados_cita(id),
-        google_calendar_event_id VARCHAR(255),
-        ubicacion VARCHAR(255),
-        descripcion TEXT,
+        estado_id INTEGER NOT NULL REFERENCES tbl_estados_cita(id) DEFAULT 1,
+        google_calendar_event_id VARCHAR(255) NULL,
+        descripcion TEXT NULL,
         notas TEXT,
         estado BOOLEAN DEFAULT TRUE,
         fecha_borrado TIMESTAMP

@@ -1,11 +1,8 @@
-CREATE OR REPLACE FUNCTION fn_crear_cita(p_fecha_hora TIMESTAMP, p_doctor_id INT, p_paciente_id INT, p_estado_id INT, p_google_calendar_event_id VARCHAR, p_ubicacion VARCHAR, p_descripcion VARCHAR, p_notas VARCHAR)
-RETURNS TABLE
-(
-    exito BOOL,
-    mensaje VARCHAR(1000),
-    id_registro INT
-)
-AS $$
+DROP FUNCTION fn_crear_cita;
+CREATE OR REPLACE FUNCTION public.fn_crear_cita(p_fecha_hora timestamp without time zone, p_doctor_id integer, p_paciente_id integer, p_estado_id integer, p_descripcion character varying, p_notas character varying, p_google_calendar_event_id character varying DEFAULT NULL::character varying, p_ubicacion character varying DEFAULT NULL::character varying)
+ RETURNS TABLE(exito boolean, mensaje character varying, id_registro integer)
+ LANGUAGE plpgsql
+AS $function$
 DECLARE
     v_exito BOOL := true;
     v_mensaje VARCHAR(1000);
@@ -33,4 +30,5 @@ EXCEPTION WHEN OTHERS THEN
 
     RETURN QUERY SELECT v_exito, v_mensaje, id_registro;
 END;
-$$ LANGUAGE plpgsql;
+$function$
+
