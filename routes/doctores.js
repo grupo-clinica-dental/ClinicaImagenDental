@@ -5,7 +5,7 @@ const requireAuth = require('../middlewares/requireAuth');
 
 app.get('', [requireAuth], async (req, res) => {
     try {
-        const sql = 'SELECT * FROM tbl_doctores WHERE estado = true';
+        const sql = 'SELECT d.id AS doctor_id, d.nombre AS doctor_name, d.correo_electronico AS doctor_email, d.color AS doctor_color, e.id AS especialidad_id,e.nombre AS especialidad_name FROM tbl_doctores d JOIN tbl_doctor_especialidades de ON d.id = de.doctor_id JOIN tbl_especialidades e ON de.especialidad_id = e.id;';
         const rows = await db.any(sql);
 
         if (rows.length === 0) {
