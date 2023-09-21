@@ -5,7 +5,7 @@ const requireAuth = require('../middlewares/requireAuth');
 
 app.get('', [requireAuth], async (req, res) => {
     try {
-        const sql = 'SELECT d.id AS doctor_id, d.nombre AS doctor_name, d.correo_electronico AS doctor_email, d.color AS doctor_color, e.id AS especialidad_id,e.nombre AS especialidad_name FROM tbl_doctores d JOIN tbl_doctor_especialidades de ON d.id = de.doctor_id JOIN tbl_especialidades e ON de.especialidad_id = e.id;';
+        const sql = 'SELECT d.id AS doctor_id, d.nombre AS doctor_name, d.correo_electronico AS doctor_email, d.color AS doctor_color, e.id AS especialidad_id, e.nombre AS especialidad_name FROM tbl_doctores AS d JOIN tbl_doctor_especialidades AS de ON d.id = de.doctor_id JOIN tbl_especialidades AS e ON de.especialidad_id = e.id;';
         const rows = await db.any(sql);
 
         if (rows.length === 0) {
@@ -31,11 +31,11 @@ app.post('', [requireAuth], async (req, res) => {
     const { nombre, correo_electronico, color, especialidadId } = req.body;
 
 
-    if(!especialidadId){
+    if (!especialidadId) {
         return res.status(400).json({ message: 'Especialidad es requerida' });
     }
 
-    if(!nombre || !correo_electronico || !color){
+    if (!nombre || !correo_electronico || !color) {
         return res.status(400).json({ message: 'Nombre, correo electrónico y color son requeridos' });
     }
 
@@ -43,7 +43,7 @@ app.post('', [requireAuth], async (req, res) => {
 
         const checkIfDoctorNameExist = await db.query('SELECT * FROM tbl_doctores WHERE nombre = $1', [nombre]);
 
-        if(checkIfDoctorNameExist.length > 0){
+        if (checkIfDoctorNameExist.length > 0) {
             return res.status(400).json({ message: 'El nombre del doctor ya existe.' });
         }
 
@@ -52,26 +52,26 @@ app.post('', [requireAuth], async (req, res) => {
 
         const doctocCreado = result[0].id_registro;
 
-        if(!result[0].exito){
+        if (!result[0].exito) {
             return res.status(500).json({ message: 'Hubo un error al crear el doctor' });
         }
 
-            const result2 = await db.query('SELECT * FROM fn_crear_doctor_especialidad($1, $2)', [doctocCreado, especialidadId]);
+        const result2 = await db.query('SELECT * FROM fn_crear_doctor_especialidad($1, $2)', [doctocCreado, especialidadId]);
 
-            if(!result2[0].exito){
-                return res.status(500).json({ message: 'Hubo un error al crear el doctor' });
-            }
+        if (!result2[0].exito) {
+            return res.status(500).json({ message: 'Hubo un error al crear el doctor' });
+        }
 
-            return res.status(201).json({ message: 'Doctor Creado con exito', data: result[0].id_registro });
+        return res.status(201).json({ message: 'Doctor Creado con exito', data: result[0].id_registro });
 
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'Error al crear el doctor' });
-    } 
+    }
 
 });
 
-app.put('/:id', [requireAuth],(req, res) => {
+app.put('/:id', [requireAuth], (req, res) => {
 
 
     const parametros = [
@@ -105,7 +105,7 @@ app.put('/:id', [requireAuth],(req, res) => {
                 nombre: req.body.nombre,
                 correo_electronico: req.body.correo_electronico,
                 color: req.body.color,
-                
+
 
             }
 
