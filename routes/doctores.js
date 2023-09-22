@@ -111,8 +111,11 @@ app.post('', [requireAuth], async (req, res) => {
 
 app.put('/:id', [requireAuth], async (req, res) => {
 
-    const { nombre, correo_electronico, color, nuevaEspecialidad, especialidadVieja } = req.body;
+    const { nombre, correo_electronico, color, nuevaEspecialidad, especialidadVieja, id } = req.body;
+
     const doctorId = req.params.id;
+
+
 
     let respuestaValidacion = {
         exito: true,

@@ -137,19 +137,20 @@ app.put('/:id', [requireAuth], async (req, res) => {
 // Mostrar citas activas
 app.get('', [requireAuth], async (req, res) => {
     let sql = `
-        SELECT 
-            c.*,
-            d.id as doctor_id, d.nombre as doctor_nombre, d.color as doctor_color,
-            e.id as especialidad_id, e.nombre as especialidad_nombre,
-            p.id as paciente_id, p.nombre as paciente_nombre,
-            es.id as estado_cita_id, es.estado as estado_cita_nombre
-        FROM tbl_citas c
-        JOIN tbl_doctores d ON c.doctor_id = d.id
-        LEFT JOIN tbl_doctor_especialidades de ON d.id = de.doctor_id
-        LEFT JOIN tbl_especialidades e ON de.especialidad_id = e.id
-        JOIN tbl_pacientes p ON c.paciente_id = p.id
-        JOIN tbl_estados_cita es ON c.estado_id = es.id
-        WHERE c.estado = true
+    SELECT 
+    c.*,
+    d.id as doctor_id, d.nombre as doctor_nombre, d.color as doctor_color,
+    e.id as especialidad_id, e.nombre as especialidad_nombre,
+    p.id as paciente_id, p.nombre as paciente_nombre, p.email as paciente_email,  -- Añadir el email aquí
+    es.id as estado_cita_id, es.estado as estado_cita_nombre
+FROM tbl_citas c
+JOIN tbl_doctores d ON c.doctor_id = d.id
+LEFT JOIN tbl_doctor_especialidades de ON d.id = de.doctor_id
+LEFT JOIN tbl_especialidades e ON de.especialidad_id = e.id
+JOIN tbl_pacientes p ON c.paciente_id = p.id
+JOIN tbl_estados_cita es ON c.estado_id = es.id
+WHERE c.estado = true
+
     `;
 
     try {
@@ -183,7 +184,8 @@ app.get('', [requireAuth], async (req, res) => {
             },
             paciente: {
                 id: row.paciente_id,
-                nombre: row.paciente_nombre
+                nombre: row.paciente_nombre,
+                email: row.paciente_email  // Añadir el email aquí
             },
             estado_cita: {
                 id: row.estado_cita_id,
@@ -191,7 +193,7 @@ app.get('', [requireAuth], async (req, res) => {
             },
             // Añade los otros campos aquí...
         }));
-
+        
 
         respuesta.mensaje.push("Citas obtenidas exitosamente");
         respuesta.item_cita = citas;
