@@ -6,7 +6,6 @@ const requireAuth = require('../middlewares/requireAuth');
 // Insertar citas 
 
 
-
 app.post('', [requireAuth], async (req, res) => {
     const { fecha_inicio, fecha_fin, doctor_id, paciente_id, estado_id } = req.body;
 
@@ -42,13 +41,28 @@ app.post('', [requireAuth], async (req, res) => {
 
     let respuestaValidacion = {
         exito: bandera,
-        mensaje: mensajes,
+        mensajes: mensajes,  // Cambiado a "mensajes" para mayor claridad
         excepcion: "",
         item_cita: ""
     };
 
     if (!respuestaValidacion.exito) {
-        return res.status(400).json(respuestaValidacion); 
+        return res.status(400).json({ message: "Validación fallida", ...respuestaValidacion }); 
+    }
+
+    // Validar si la cita ya existe
+    const validarSql = `
+        SELECT id 
+        FROM tbl_citas
+        WHERE doctor_id = $1 AND fecha_inicio = $2 AND fecha_fin = $3
+    `;
+    try {
+        const citaExistente = await db.oneOrNone(validarSql, [doctor_id, fecha_inicio, fecha_fin]);
+        if (citaExistente) {
+            return res.status(400).json({ message: "La cita ya existe", ...respuestaValidacion });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Error al validar la cita", excepcion: error.message });
     }
 
     let sql = `INSERT INTO tbl_citas (fecha_inicio, fecha_fin, doctor_id, paciente_id, estado_id) VALUES ($1, $2, $3, $4, $5) RETURNING id`;
@@ -64,81 +78,61 @@ app.post('', [requireAuth], async (req, res) => {
             paciente_id: paciente_id,
             estado_id: estado_id
         };
-        respuestaValidacion.mensaje.push("Cita creada exitosamente");
+        respuestaValidacion.mensajes.push("Cita creada exitosamente");
         respuestaValidacion.item_cita = objetoCreado;
 
-        res.status(201).json(respuestaValidacion);  
+        res.status(201).json({ message: "Cita creada con éxito", ...respuestaValidacion });  
     } catch (error) {
-        respuestaValidacion.mensaje.push("Error al crear la cita");
-        respuestaValidacion.excepcion = error.message;
-        respuestaValidacion.exito = false;
-        res.status(500).json(respuestaValidacion); 
+        console.log(error)
+        res.status(500).json({ message: "Error al crear la cita", excepcion: error.message, ...respuestaValidacion }); 
     }
 });
 
 
 
 
-// Actualizar citas activas
-app.put('/:id', [requireAuth],async (req, res) => {
+app.put('/:id', [requireAuth], async (req, res) => {
     const { id } = req.params;
-    const { fecha_hora, doctor_id, paciente_id, estado_id, google_calendar_event_id, ubicacion, descripcion, notas } = req.body;
-
-    let mensajes = [];
-    let bandera = true;
-
-    if (!fecha_hora ) {
-        bandera = false;
-        mensajes.push('Fecha y hora es requerida y no puede estar en el futuro');
-    }
-
-    if (!doctor_id) {
-        bandera = false;
-        mensajes.push('ID del doctor es requerido');
-    }
-
-    if (!paciente_id) {
-        bandera = false;
-        mensajes.push('ID del paciente es requerido');
-    }
-
-    if (!estado_id) {
-        bandera = false;
-        mensajes.push('ID del estado es requerido');
-    }
-
-    if (!google_calendar_event_id || google_calendar_event_id.trim() === '') {
-        google_calendar_event_id = null;
-    }
+    const { fecha_inicio, fecha_fin, doctor_id, paciente_id, estado_id } = req.body;
 
     let respuestaValidacion = {
-        exito: bandera,
-        mensaje: mensajes,
-        excepcion: "",
+        exito: true,
+        mensaje: [],
+        excepcion: ""
     };
 
-    if (!respuestaValidacion.exito) {
-        return res.status(400).json(respuestaValidacion);
-    }
-
-    let sql = `SELECT * FROM fn_actualizar_cita($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+    let sql = `
+        UPDATE tbl_citas 
+        SET 
+            fecha_inicio = COALESCE($1, fecha_inicio),
+            fecha_fin = COALESCE($2, fecha_fin),
+            doctor_id = COALESCE($3, doctor_id),
+            paciente_id = COALESCE($4, paciente_id),
+            estado_id = COALESCE($5, estado_id)
+        WHERE id = $6
+        RETURNING *;
+    `;
 
     try {
-        const data = await db.any(sql, [id, fecha_hora, doctor_id, paciente_id, estado_id, google_calendar_event_id, ubicacion, descripcion, notas]);
+        const data = await db.any(sql, [fecha_inicio, fecha_fin, doctor_id, paciente_id, estado_id, id]);
 
-        if (!data[0].exito) {
-            return res.status(404).json({message: 'Cita Inactiva o no encontrada'});
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Cita no encontrada' });
         }
 
-        respuestaValidacion.mensaje.push("Cita actualizada exitosamente");
-        res.status(200).json(respuestaValidacion);  
+        respuestaValidacion.mensaje.push("La cita ha sido actualizada exitosamente");
+        res.status(200).json(respuestaValidacion);
     } catch (error) {
         respuestaValidacion.mensaje.push("Error al actualizar la cita");
         respuestaValidacion.excepcion = error.message;
         respuestaValidacion.exito = false;
-        res.status(500).json(respuestaValidacion); 
+        res.status(500).json(respuestaValidacion);
     }
 });
+
+// ... Otros códigos ...
+
+
 
 // Mostrar citas activas
 app.get('', [requireAuth], async (req, res) => {
@@ -259,25 +253,26 @@ app.delete('/:id', [requireAuth], async (req, res) => {
         excepcion: ""
     };
 
-    let sql = `SELECT * FROM fn_delete_doctor_especialidad($1)`;
+    // Query para actualizar el estado a "inactivo" (estado = false) para la cita
+    let sql = `UPDATE tbl_citas SET estado = false WHERE id = $1 RETURNING *`;
 
     try {
         const data = await db.any(sql, [id]);
 
-        if (!data[0].exito) {
-            return res.status(404).json({message: 'Doctor Especialidad no encontrado'});
+        // Si no hay ningún registro actualizado, significa que la cita no fue encontrada
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Cita no encontrada' });
         }
 
-        respuestaValidacion.mensaje.push("Doctor Especialidad eliminado exitosamente");
+        respuestaValidacion.mensaje.push("La cita ha sido desactivada exitosamente");
         res.status(200).json(respuestaValidacion);
     } catch (error) {
-        respuestaValidacion.mensaje.push("Error al eliminar el Doctor Especialidad");
+        respuestaValidacion.mensaje.push("Error al desactivar la cita");
         respuestaValidacion.excepcion = error.message;
         respuestaValidacion.exito = false;
         res.status(500).json(respuestaValidacion);
     }
 });
-
 
 
 module.exports = app;
